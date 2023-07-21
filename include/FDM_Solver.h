@@ -10,7 +10,7 @@ class FDM_Solver
 public:
     FDM_Solver(int Num_Grid, double range_min, double range_max);
 
-    std::vector<double> solve(std::vector<double>& Potentials);
+    std::vector<std::pair<std::complex<double>, Eigen::VectorXd>> Get_Solution(bool sorted);
 
 private:
     int num_grid;
@@ -18,6 +18,13 @@ private:
 
     double range_min;
     double range_max;
+
+    double dx;
+
+    std::vector<double> Solve(const std::vector<double>& Potentials);
+
+    Eigen::MatrixXcd EigenVector;
+    Eigen::VectorXcd EigenValue;
 };
 
 #endif //SCHRODINGER_1D_FDM_SOLVER_H
