@@ -12,10 +12,8 @@ TEST(FDM_SolverTest, TestSolve){
 
     auto sol = solver.Get_Solution(true, Potential);
 
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 7; ++i)
     {
-        std::cout << sol[i].first / sol[0].first << "\n";
+        EXPECT_NEAR(sol[i].first / sol[0].first, static_cast<double>((i + 1) * (i + 1)), 0.2);
     }
-
-    EXPECT_NEAR(sol[1].first, 1.0, 0.1);
 }
