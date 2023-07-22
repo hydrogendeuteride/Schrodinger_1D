@@ -3,14 +3,15 @@
 
 #include <eigen3/Eigen/Dense>
 #include <vector>
-#include "Potentials.h"
+#include <algorithm>
 
 class FDM_Solver
 {
 public:
     FDM_Solver(int Num_Grid, double range_min, double range_max);
 
-    std::vector<std::pair<std::complex<double>, Eigen::VectorXd>> Get_Solution(bool sorted);
+    std::vector<std::pair<double, Eigen::VectorXd>> Get_Solution
+    (bool sorted, const std::vector<double> &Potentials);
 
 private:
     int num_grid;
@@ -21,10 +22,10 @@ private:
 
     double dx;
 
-    std::vector<double> Solve(const std::vector<double>& Potentials);
+    void Solve(const std::vector<double>& Potentials);
 
-    Eigen::MatrixXcd EigenVector;
-    Eigen::VectorXcd EigenValue;
+    Eigen::MatrixXd EigenVector;
+    Eigen::VectorXd EigenValue;
 };
 
 #endif //SCHRODINGER_1D_FDM_SOLVER_H
