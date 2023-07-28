@@ -1,14 +1,16 @@
 #ifndef SCHRODINGER_1D_SPLINE_H
 #define SCHRODINGER_1D_SPLINE_H
 
+#include <utility>
 #include <vector>
+#include <eigen3/Eigen/Dense>
 
 struct Spline
 {
     double a, b, c, d, x;
 };
 
-std::vector<Spline> CubicSpline(int n, std::vector<double> x, std::vector<double> y)
+std::vector<Spline> CubicSpline(int n, std::vector<double>& x, std::vector<double>& y)
 {
     std::vector<double> h(n), alpha(n), l(n) ,mu(n), z(n);
     std::vector<Spline> spline(n);
@@ -28,7 +30,7 @@ std::vector<Spline> CubicSpline(int n, std::vector<double> x, std::vector<double
 
     for (int i = 1; i < n - 1; ++i)
     {
-        l[i] = 2.0 * (x[i + 1] - x[i - 1]) - h[i-1] * mu[i-1];
+        l[i] = 2.0 * (h[i] + h[i + 1]) - h[i-1] * mu[i-1];
         mu[i] = h[i] / l[i];
         z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
     }
@@ -40,10 +42,36 @@ std::vector<Spline> CubicSpline(int n, std::vector<double> x, std::vector<double
     {
         spline[i].c = z[i] - mu[i] * spline[i + 1].c;
         spline[i].b = (y[i + 1] - y[i]) / h[i] - h[i] * (spline[i + 1].c + 2.0 * spline[i].c) / 3.0;
-        spline[i].d = (spline[i + 1].c = spline[i].c) / (3.0 * h[i]);
+        spline[i].d = (spline[i + 1].c - spline[i].c) / (3.0 * h[i]);
         spline[i].a = y[i];
         spline[i].x = x[i];
      }
+
+    return spline;
+}
+
+std::vector<Eigen::Vector2d> SplinePoints(int n, int div, std::vector<double>& x, std::vector<double>& y)
+{
+    const auto tmp = CubicSpline(n, x, y);
+
+    std::vector<Eigen::Vector2d> spline;
+
+    for (int i = 0; i < n * div; ++i)
+    {
+        double dx = (x[i / div + 1] - x[i / div]) / static_cast<double>(div);
+
+        if (i % div == 0)
+            spline.emplace_back(x[i / div], y[i / div]);
+
+        else
+        {
+            auto t = tmp[i / div];
+            double cur_x = x[i / div] + dx * (i % div);
+            double cur_y = t.a + t.b * cur_x + t.c * cur_x * cur_x + t.d * cur_x * cur_x * cur_x;
+
+            spline.emplace_back(cur_x, cur_y);
+        }
+    }
 
     return spline;
 }
