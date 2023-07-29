@@ -16,7 +16,9 @@ link_libraries(${GLFW_LIBRARY_DIRS})
 
 include_directories(GLAD/include include)
 
-add_executable(Schrodinger_1D src/main.cpp src/shader.cpp GLAD/src/glad.c src/FDM_Solver.cpp)
+add_executable(Schrodinger_1D src/main.cpp src/shader.cpp GLAD/src/glad.c src/FDM_Solver.cpp
+        src/Graph.cpp
+        src/Graph.cpp)
 
 target_link_libraries(${PROJECT_NAME} glfw ${CMAKE_DL_LIBS})
 
