@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "shader.h"
 #include <string>
+#include <memory>
 
 enum Color
 {
@@ -21,9 +22,14 @@ enum Color
 class Graph
 {
 public:
-    Graph(const std::vector<Eigen::Vector2d> &data, const Shader &shader);
+    Graph(const std::shared_ptr<Shader> &shader);
 
-    void setup();
+    Graph()
+    {};
+
+    ~Graph();
+
+    void setup(const std::vector<Eigen::Vector2d> &data, const std::shared_ptr<Shader> &shader);
 
     void draw(Color color);
 
@@ -32,7 +38,8 @@ private:
 
     std::vector<Eigen::Vector2d> graph;
 
-    Shader shader;
+    std::shared_ptr<Shader> GraphShader;
+    bool ShaderInitialized = false;
 };
 
 #endif //SCHRODINGER_1D_GRAPH_H

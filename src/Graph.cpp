@@ -1,14 +1,16 @@
 #include "Graph.h"
 
-Graph::Graph(const std::vector<Eigen::Vector2d> &data, const Shader &shader)
-        : graph(data), shader(shader)
+Graph::Graph(const std::shared_ptr<Shader>& shader)
+        : GraphShader(shader)
 {
-
+    ShaderInitialized = true;
 }
 
-void Graph::setup()
+void Graph::setup(const std::vector<Eigen::Vector2d> &data, const std::shared_ptr<Shader> &shader)
 {
     std::vector<float> vertex;
+
+    graph = data;
 
     for (const auto &x: graph)
     {
@@ -27,6 +29,9 @@ void Graph::setup()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) nullptr);
     glEnableVertexAttribArray(0);
+
+    if (!ShaderInitialized)
+        GraphShader = shader;
 }
 
 void Graph::draw(Color color)
@@ -34,17 +39,23 @@ void Graph::draw(Color color)
     switch (color)
     {
         case Red:
-            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+            GraphShader->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
             break;
         case Green:
-            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+            GraphShader->setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
             break;
         case Blue:
-            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+            GraphShader->setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
             break;
     }
 
-    shader.use();
+    GraphShader->use();
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINE_STRIP, 0, graph.size());
+}
+
+Graph::~Graph()
+{
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 }

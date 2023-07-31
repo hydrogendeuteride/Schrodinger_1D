@@ -18,4 +18,12 @@ namespace Potential
     }
 }
 
+enum PotentialType{
+    HarmonicOscillator,
+    InfiniteWell,
+    FiniteWell,
+    DiracDelta,
+    FreeSpace
+};
+
 #endif //SCHRODINGER_1D_POTENTIALS_H

@@ -38,7 +38,7 @@ std::vector<std::pair<double, Eigen::VectorXd>> FDM_Solver::Get_Solution
 
     for (int i = 0; i < num_grid - 2; ++i)
     {
-        ret.emplace_back(EigenValue(i), EigenVector.col(i));
+        ret.emplace_back(EigenValue(i), EigenVector.col(i).normalized());
     }
 
     if (sorted)

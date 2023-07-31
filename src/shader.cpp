@@ -2,6 +2,11 @@
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
+    setShader(vertexPath, fragmentPath);
+}
+
+void Shader::setShader(const GLchar *vertexPath, const GLchar *fragmentPath)
+{
     std::string vertexCode;
     std::string fragmentCode;
 

@@ -17,6 +17,9 @@ public:
     unsigned int ID;
 
     Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+    Shader(){};
+
+    void setShader(const GLchar* vertexPath, const GLchar* fragmentPath);
 
     void use() const;
 
