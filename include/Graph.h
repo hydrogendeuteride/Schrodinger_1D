@@ -1,7 +1,7 @@
 #ifndef SCHRODINGER_1D_GRAPH_H
 #define SCHRODINGER_1D_GRAPH_H
 
-#include <vector>
+ #include <vector>
 #include <eigen3/Eigen/Dense>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -30,6 +30,8 @@ public:
     ~Graph();
 
     void setup(const std::vector<Eigen::Vector2d> &data, const std::shared_ptr<Shader> &shader);
+
+    void Update(const std::vector<Eigen::Vector2d> &data);
 
     void draw(Color color);
 

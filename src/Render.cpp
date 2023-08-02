@@ -23,6 +23,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     //if y.size ! = x.size error throw
 
     GraphPlot = SplinePoints(Grid_Num, 10, x, y);
+    graph.setup(GraphPlot, std::make_shared<Shader>(shader));
 }
 
 void Render::Draw(Color GraphColor, Color GridColor)
