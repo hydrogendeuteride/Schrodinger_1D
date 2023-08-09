@@ -1,8 +1,40 @@
 #include "Render.h"
 #include <numeric>
 
-Render::Render()
-{}
+Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Schrodinger 1D", glfwGetPrimaryMonitor(), nullptr);
+
+    if (window == nullptr)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow * w, int width, int height)
+    {
+        auto *win = static_cast<Render*>(glfwGetWindowUserPointer(w));
+        win->framebuffer_size_callback(width, height);
+    });
+
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Render::framebuffer_size_callback(int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
 
 void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector<double> &Potential)
 {
@@ -25,7 +57,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
     graph.setup(GraphPlot, std::make_shared<Shader>(shader));
 
-    std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, y);
+    std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, Potential);
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
     grid.Setup(std::make_shared<Shader>(shader), Range_Min, Range_Max, Grid_Num);
@@ -33,8 +65,20 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 
 void Render::Draw(Color GraphColor, Color GridColor)
 {
-    graph.draw(Blue);
-    potential.draw(White);
 
-    grid.Draw(White);
+    while (!glfwWindowShouldClose(window))
+    {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        graph.draw(Blue);
+        potential.draw(White);
+
+        grid.Draw(White);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
 }
