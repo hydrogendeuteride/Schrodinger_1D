@@ -6,6 +6,7 @@
 #include "FDM_Solver.h"
 #include "Potentials.h"
 #include "shader.h"
+#include "Grid.h"
 
 class Render
 {
@@ -17,11 +18,14 @@ public:
     void Draw(Color GraphColor, Color GridColor);
 
 private:
+    GLFWwindow *window;
+
     Shader shader = Shader("shader/graph.vert", "shader/graph.frag");
 
-    std::vector<Eigen::Vector2d> GraphPlot;
-
     Graph graph;
+    Graph potential;
+
+    Grid grid;
 };
 
 #endif //SCHRODINGER_1D_RENDER_H

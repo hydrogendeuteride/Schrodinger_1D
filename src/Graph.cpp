@@ -63,6 +63,12 @@ void Graph::draw(Color color)
         case Blue:
             GraphShader->setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
             break;
+        case White:
+            GraphShader->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+            break;
+        default:
+            GraphShader->setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+            break;
     }
 
     GraphShader->use();

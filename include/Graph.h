@@ -16,7 +16,8 @@ enum Color
 {
     Red,
     Green,
-    Blue
+    Blue,
+    White
 };
 
 class Graph
