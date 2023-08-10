@@ -11,14 +11,7 @@
 #include "shader.h"
 #include <string>
 #include <memory>
-
-enum Color
-{
-    Red,
-    Green,
-    Blue,
-    White
-};
+#include "Color.h"
 
 class Graph
 {

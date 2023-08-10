@@ -17,10 +17,15 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow * w, int width, int height)
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow *w, int width, int height) {
+        auto *win = static_cast<Render *>(glfwGetWindowUserPointer(w));
+        win->framebuffer_size_callback(width, height);
+    });
+
+    glfwSetScrollCallback(window, [](GLFWwindow *w, double xoffset, double yoffset)
     {
         auto *win = static_cast<Render*>(glfwGetWindowUserPointer(w));
-        win->framebuffer_size_callback(width, height);
+        win->scroll_callback(xoffset, yoffset);
     });
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -34,6 +39,31 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
 void Render::framebuffer_size_callback(int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void Render::scroll_callback(double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 60.0f)
+        fov = 60.0f;
+}
+
+void Render::processinput(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    float cameraspeed = 0.05f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        CamPos += cameraspeed * CamUp;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        CamPos -= cameraspeed * CamUp;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        CamPos -= glm::normalize(glm::cross(CamFront, CamUp)) * cameraspeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        CamPos += glm::normalize(glm::cross(CamFront, CamUp)) * cameraspeed;
 }
 
 void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector<double> &Potential)
@@ -68,8 +98,16 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
     while (!glfwWindowShouldClose(window))
     {
+        processinput(window);
+
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        shader.setMat4("projection", projection);
+
+        glm::mat4 view = glm::lookAt(CamPos, CamPos + CamFront, CamUp);
+        shader.setMat4("view", view);
 
         graph.draw(Blue);
         potential.draw(White);

@@ -4,14 +4,7 @@
 #include <vector>
 #include <memory>
 #include "shader.h"
-
-enum Color
-{
-    Red,
-    Green,
-    Blue,
-    White
-};
+#include "Color.h"
 
 class Grid
 {

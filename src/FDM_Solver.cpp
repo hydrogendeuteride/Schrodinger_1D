@@ -25,8 +25,23 @@ void FDM_Solver::Solve(const std::vector<double> &Potentials)
 
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> s(Hamiltonian);
 
-    EigenVector = s.eigenvectors();
-    EigenValue = s.eigenvalues();
+    Eigen::MatrixXd eigenvectors = s.eigenvectors();
+    const Eigen::VectorXd& eigenvalues = s.eigenvalues();
+
+    // Assuming EigenVector is a matrix to store the full eigenvectors with boundary values
+    EigenVector = Eigen::MatrixXd(num_grid, eigenvectors.cols());
+
+    for (int col = 0; col < eigenvectors.cols(); ++col)
+    {
+        EigenVector(0, col) = 0.0;
+        for (int i = 1; i < num_grid - 1; ++i)
+        {
+            EigenVector(i, col) = eigenvectors(i-1, col);
+        }
+        EigenVector(num_grid - 1, col) = 0.0;
+    }
+
+    EigenValue = eigenvalues;
 }
 
 std::vector<std::pair<double, Eigen::VectorXd>> FDM_Solver::Get_Solution
