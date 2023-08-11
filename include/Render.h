@@ -27,13 +27,13 @@ private:
 
     const int SCR_WIDTH, SCR_HEIGHT;
 
-    glm::vec3 CamPos = glm::vec3(0.0f, 0.0f, 2.0f);
+    glm::vec3 CamPos = glm::vec3(0.0f, 0.0f, 10.0f);
     glm::vec3 CamFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 CamUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     float fov = 60.0;
 
-    Shader shader = Shader("shader/graph.vert", "shader/graph.frag");
+    Shader shader;
 
     Graph graph;
     Graph potential;

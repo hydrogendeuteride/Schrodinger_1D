@@ -8,7 +8,8 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Schrodinger 1D", glfwGetPrimaryMonitor(), nullptr);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Schrodinger 1D", nullptr, nullptr);
+    glfwSetWindowUserPointer(window, this);
 
     if (window == nullptr)
     {
@@ -17,6 +18,7 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     }
 
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *w, int width, int height) {
         auto *win = static_cast<Render *>(glfwGetWindowUserPointer(w));
         win->framebuffer_size_callback(width, height);
@@ -34,6 +36,8 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     }
 
     glEnable(GL_DEPTH_TEST);
+
+    shader.setShader("../shader/shader.vert", "../shader/shader.frag");
 }
 
 void Render::framebuffer_size_callback(int width, int height)
@@ -108,6 +112,9 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         glm::mat4 view = glm::lookAt(CamPos, CamPos + CamFront, CamUp);
         shader.setMat4("view", view);
+
+        glm::mat4 model = glm::mat4 (1.0f);
+        shader.setMat4("model", model);
 
         graph.draw(Blue);
         potential.draw(White);

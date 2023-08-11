@@ -13,15 +13,28 @@ std::vector<float> Grid::GridGeneration(double Range_Min, double Range_Max, int 
 
     for (int i = 0; i <= Grid_Num; ++i)
     {
-        for (int j = 0; j <= Grid_Num; ++j)
-        {
-            float x = static_cast<float>(i) * static_cast<float>(dx) - static_cast<float>(Range_Min);
-            float y = static_cast<float>(j) * static_cast<float>(dx) - static_cast<float>(Range_Min);
+        float y = static_cast<float>(i) * static_cast<float>(dx) + Range_Min;
 
-            vertex.push_back(x);
-            vertex.push_back(y);
-            vertex.push_back(0.0f);
-        }
+        vertex.push_back(Range_Min);
+        vertex.push_back(y);
+        vertex.push_back(0.0f);
+
+        vertex.push_back(Range_Max);
+        vertex.push_back(y);
+        vertex.push_back(0.0f);
+    }
+
+    for (int i = 0; i <= Grid_Num; ++i)
+    {
+        float x = static_cast<float>(i) * static_cast<float>(dx) + Range_Min;
+
+        vertex.push_back(x);
+        vertex.push_back(Range_Min);
+        vertex.push_back(0.0f);
+
+        vertex.push_back(x);
+        vertex.push_back(Range_Max);
+        vertex.push_back(0.0f);
     }
 
     return vertex;
@@ -52,19 +65,19 @@ void Grid::Draw(Color color)
     switch (color)
     {
         case Red:
-            GridShader->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+            GridShader->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             break;
         case Green:
-            GridShader->setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+            GridShader->setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             break;
         case Blue:
-            GridShader->setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+            GridShader->setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
             break;
         case White:
-            GridShader->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+            GridShader->setVec4("color", glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
             break;
         default:
-            GridShader->setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+            GridShader->setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
             break;
     }
 
