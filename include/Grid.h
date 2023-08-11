@@ -15,8 +15,6 @@ public:
 
     void Setup(const std::shared_ptr<Shader> &shader, double Range_Min, double Range_Max, int Grid_Num);
 
-    ~Grid();
-
 private:
     std::vector<float> GridGeneration(double Range_Min, double Range_Max, int Grid_Num);
 

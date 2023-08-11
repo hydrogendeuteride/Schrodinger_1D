@@ -85,9 +85,3 @@ void Grid::Draw(Color color)
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, Vertex_Num);
 }
-
-Grid::~Grid()
-{
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-}

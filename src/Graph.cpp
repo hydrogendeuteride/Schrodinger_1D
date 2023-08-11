@@ -75,9 +75,3 @@ void Graph::draw(Color color)
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINE_STRIP, 0, graph.size());
 }
-
-Graph::~Graph()
-{
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-}

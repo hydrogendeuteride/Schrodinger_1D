@@ -21,8 +21,6 @@ public:
     Graph()
     {};
 
-    ~Graph();
-
     void setup(const std::vector<Eigen::Vector2d> &data, const std::shared_ptr<Shader> &shader);
 
     void Update(const std::vector<Eigen::Vector2d> &data);
