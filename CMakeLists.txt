@@ -3,8 +3,6 @@ project(Schrodinger_1D)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SOURCE_FILES main.cpp GLAD/src/glad.c)
-
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mavx2 -fopenmp -march=native")
@@ -14,13 +12,29 @@ find_package(Eigen3 3.3 NO_MODULE)
 include_directories(${GLFW_INCLUDE_DIRS})
 link_libraries(${GLFW_LIBRARY_DIRS})
 
-include_directories(GLAD/include include)
+include_directories(GLAD/include include imgui)
 
-add_executable(Schrodinger_1D src/main.cpp src/shader.cpp GLAD/src/glad.c src/FDM_Solver.cpp
+set(IMGUI_SRC
+        "imgui/imgui.cpp"
+        "imgui/imgui_draw.cpp"
+        "imgui/imgui_impl_glfw.cpp"
+        "imgui/imgui_impl_opengl3.cpp"
+        "imgui/imgui_tables.cpp"
+        "imgui/imgui_widgets.cpp")
+
+add_executable(Schrodinger_1D
+        src/main.cpp
+        src/shader.cpp
+        GLAD/src/glad.c
+        src/FDM_Solver.cpp
         src/Graph.cpp
         src/Render.cpp
         src/Grid.cpp
-        src/Spline.cpp)
+        src/Spline.cpp
+        ${IMGUI_SRC}
+        src/Potentials.cpp)
+
+add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 target_link_libraries(${PROJECT_NAME} glfw ${CMAKE_DL_LIBS})
 

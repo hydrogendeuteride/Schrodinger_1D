@@ -1,9 +1,14 @@
 #include "Render.h"
 #include <numeric>
+#include <cstdlib>
 
 Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
 {
-    glfwInit();
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -15,6 +20,7 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
+        std::exit(EXIT_FAILURE);
     }
 
     glfwMakeContextCurrent(window);
@@ -33,11 +39,20 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 
     glEnable(GL_DEPTH_TEST);
 
     shader.setShader("../shader/shader.vert", "../shader/shader.frag");
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void )io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void Render::framebuffer_size_callback(int width, int height)
@@ -74,17 +89,10 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 {
     FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
 
-    const auto sol = solver.Get_Solution(true, Potential);
+    solution = solver.Get_Solution(true, Potential);
 
-    double dx = (Range_Max - Range_Min) / static_cast<double>(Grid_Num);
-    std::vector<double> x(Grid_Num);
-    std::generate(x.begin(), x.end(), [Range_Min, dx]()mutable {
-        auto current = Range_Min;
-        Range_Min += dx;
-        return current;
-    });
-
-    std::vector<double> y(sol[0].second.data(), sol[0].second.data() + sol[0].second.size());
+    x = Potential::XaxisGenerator(Grid_Num, Range_Min, Range_Max);
+    std::vector<double> y(solution[0].second.data(), solution[0].second.data() + solution[0].second.size());
 
     //if y.size ! = x.size error throw
 
@@ -95,6 +103,21 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
     grid.Setup(std::make_shared<Shader>(shader), Range_Min, Range_Max, Grid_Num);
+
+    for (const auto& pair: solution)
+    {
+        eigenvaluestring.push_back(std::to_string(pair.first / solution[0].first));
+    }
+}
+
+void Render::ChangeGraph(int eigenvalue)
+{
+    std::vector<double> y(solution[eigenvalue].second.data(),
+                          solution[eigenvalue].second.data() + solution[eigenvalue].second.size());
+
+    std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(y.size(), 10, x, y);
+
+    graph.Update(GraphPlot);
 }
 
 void Render::Draw(Color GraphColor, Color GridColor)
@@ -106,6 +129,10 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         shader.setMat4("projection", projection);
@@ -121,9 +148,34 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         grid.Draw(White);
 
+        ImGui::Begin("window");
+        if (ImGui::BeginCombo("Eigenvalues", std::to_string(solution[selecteditem].first / solution[0].first).c_str()))
+        {
+            for (int i = 0; i < solution.size(); i++) {
+                bool isSelected = (i == selecteditem);
+                if (ImGui::Selectable(std::to_string(solution[i].first / solution[0].first).c_str(), isSelected)) {
+                    selecteditem = i;
+                }
+
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                    ChangeGraph(selecteditem);
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
 }
