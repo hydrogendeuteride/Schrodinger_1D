@@ -36,7 +36,6 @@ private:
 
     std::vector<std::pair<double, Eigen::VectorXd>> solution;
 
-    std::vector<std::string> eigenvaluestring;
     int selecteditem = -1;
 
     std::vector<double> x;

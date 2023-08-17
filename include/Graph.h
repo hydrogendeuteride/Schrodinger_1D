@@ -25,6 +25,8 @@ public:
 
     void Update(const std::vector<Eigen::Vector2d> &data);
 
+    void TimePropagate(double energy, double dt);
+
     void draw(Color color);
 
 private:

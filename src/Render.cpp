@@ -103,11 +103,6 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
     grid.Setup(std::make_shared<Shader>(shader), Range_Min, Range_Max, Grid_Num);
-
-    for (const auto& pair: solution)
-    {
-        eigenvaluestring.push_back(std::to_string(pair.first / solution[0].first));
-    }
 }
 
 void Render::ChangeGraph(int eigenvalue)
@@ -123,6 +118,7 @@ void Render::ChangeGraph(int eigenvalue)
 void Render::Draw(Color GraphColor, Color GridColor)
 {
 
+    double tmp = 0.0;
     while (!glfwWindowShouldClose(window))
     {
         processinput(window);
@@ -148,9 +144,20 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         grid.Draw(White);
 
-        ImGui::Begin("window");
+        ImGui::SetNextWindowPos(ImVec2(100, 100));
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.FontGlobalScale = 1.5f;
+
+        ImGui::Begin("window", nullptr,
+                     ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
         if (ImGui::BeginCombo("Eigenvalues", std::to_string(solution[selecteditem].first / solution[0].first).c_str()))
         {
+            int previousSelectedItem = selecteditem;
+
             for (int i = 0; i < solution.size(); i++) {
                 bool isSelected = (i == selecteditem);
                 if (ImGui::Selectable(std::to_string(solution[i].first / solution[0].first).c_str(), isSelected)) {
@@ -159,11 +166,21 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
-                    ChangeGraph(selecteditem);
                 }
             }
+
+            if (previousSelectedItem != selecteditem) {
+                tmp = 0.0;
+                ChangeGraph(selecteditem);
+            }
+
             ImGui::EndCombo();
         }
+
+        tmp += 0.01;
+        graph.TimePropagate(1.0, tmp);
+        //std::cout << selecteditem<< std::endl;
+
         ImGui::End();
 
         ImGui::Render();

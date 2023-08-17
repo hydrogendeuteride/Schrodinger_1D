@@ -50,6 +50,28 @@ void Graph::Update(const std::vector<Eigen::Vector2d> &data)
     glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), static_cast<void *>(vertex.data()), GL_DYNAMIC_DRAW);
 }
 
+void Graph::TimePropagate(double energy, double dt)
+{
+    auto tmp = graph;
+
+    for (auto &x : tmp)
+    {
+        x(1) = x(1) * std::cos(energy * dt);
+    }
+
+    std::vector<float> vertex;
+
+    for (const auto &x: tmp)
+    {
+        vertex.push_back(static_cast<float>(x(0)));
+        vertex.push_back(static_cast<float>(x(1)));
+        vertex.push_back(0.0f);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), static_cast<void *>(vertex.data()), GL_DYNAMIC_DRAW);
+}
+
 void Graph::draw(Color color)
 {
     switch (color)
