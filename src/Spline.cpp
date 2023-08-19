@@ -52,7 +52,7 @@ std::vector<Eigen::Vector2d> SplinePoints(int n, int div, std::vector<double>& x
         {
             double dx = (x[i + 1] - x[i]) / static_cast<double>(div);
             double cur_x = x[i] + j * dx;
-            double delta_x = cur_x - x[i]; // 상대적인 x 값
+            double delta_x = cur_x - x[i];
 
             auto t = tmp[i];
             double cur_y = t.a + t.b * delta_x + t.c * delta_x * delta_x + t.d * delta_x * delta_x * delta_x;
@@ -60,7 +60,7 @@ std::vector<Eigen::Vector2d> SplinePoints(int n, int div, std::vector<double>& x
             spline.emplace_back(cur_x, cur_y);
         }
     }
-    spline.emplace_back(x[n-1], y[n-1]); // 마지막 포인트 추가
+    spline.emplace_back(x[n-1], y[n-1]);
 
     return spline;
 }

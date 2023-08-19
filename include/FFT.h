@@ -4,6 +4,7 @@
 #include <cmath>
 #include <complex>
 #include <vector>
+#include <optional>
 
 const double PI = std::acos(-1);
 namespace FFT
@@ -45,7 +46,7 @@ namespace FFT
         }
     }
 
-    void IFFT(std::vector<std::complex<double>>& a)
+    void IFFT(std::vector<std::complex<double>> &a)
     {
         int n = a.size();
 
@@ -61,6 +62,44 @@ namespace FFT
             a[i] /= n;
             a[i].imag(-a[i].imag());
         }
+    }
+
+    std::optional<std::vector<std::complex<double>>> FFT_Functional(std::vector<std::complex<double>> &a)
+    {
+        auto isPowerOfTwo = [](int n) ->bool{
+            if (n == 0) return false;
+            return (n & (n - 1)) == 0;
+        };
+
+        if (isPowerOfTwo(a.size()))
+        {
+            return std::nullopt;
+        }
+
+        std::vector<std::complex<double>> ret;
+        FFT(a);
+        ret = a;
+
+        return ret;
+    }
+
+    std::optional<std::vector<std::complex<double>>> IFFT_Functional(std::vector<std::complex<double>> &a)
+    {
+        auto isPowerOfTwo = [](int n) ->bool{
+            if (n == 0) return false;
+            return (n & (n - 1)) == 0;
+        };
+
+        if (isPowerOfTwo(a.size()))
+        {
+            return std::nullopt;
+        }
+
+        std::vector<std::complex<double>> ret;
+        IFFT(a);
+        ret = a;
+
+        return ret;
     }
 }
 

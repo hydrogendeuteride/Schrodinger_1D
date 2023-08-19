@@ -30,9 +30,8 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
         win->framebuffer_size_callback(width, height);
     });
 
-    glfwSetScrollCallback(window, [](GLFWwindow *w, double xoffset, double yoffset)
-    {
-        auto *win = static_cast<Render*>(glfwGetWindowUserPointer(w));
+    glfwSetScrollCallback(window, [](GLFWwindow *w, double xoffset, double yoffset) {
+        auto *win = static_cast<Render *>(glfwGetWindowUserPointer(w));
         win->scroll_callback(xoffset, yoffset);
     });
 
@@ -48,8 +47,8 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void )io;
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
@@ -62,7 +61,7 @@ void Render::framebuffer_size_callback(int width, int height)
 
 void Render::scroll_callback(double xoffset, double yoffset)
 {
-    fov -= (float)yoffset;
+    fov -= (float) yoffset;
     if (fov < 1.0f)
         fov = 1.0f;
     if (fov > 60.0f)
@@ -102,7 +101,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, Potential);
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
-    grid.Setup(std::make_shared<Shader>(shader), Range_Min, Range_Max, Grid_Num);
+    grid.Setup(std::make_shared<Shader>(shader), Range_Min, Range_Max, static_cast<int>(Range_Max - Range_Min));
 }
 
 void Render::ChangeGraph(int eigenvalue)
@@ -130,13 +129,14 @@ void Render::Draw(Color GraphColor, Color GridColor)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
+                                                100.0f);
         shader.setMat4("projection", projection);
 
         glm::mat4 view = glm::lookAt(CamPos, CamPos + CamFront, CamUp);
         shader.setMat4("view", view);
 
-        glm::mat4 model = glm::mat4 (1.0f);
+        glm::mat4 model = glm::mat4(1.0f);
         shader.setMat4("model", model);
 
         graph.draw(Blue);
@@ -147,7 +147,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
         ImGui::SetNextWindowPos(ImVec2(100, 100));
         ImGui::SetNextWindowSize(ImVec2(400, 300));
 
-        ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO &io = ImGui::GetIO();
         io.FontGlobalScale = 1.5f;
 
         ImGui::Begin("window", nullptr,
@@ -158,18 +158,22 @@ void Render::Draw(Color GraphColor, Color GridColor)
         {
             int previousSelectedItem = selecteditem;
 
-            for (int i = 0; i < solution.size(); i++) {
+            for (int i = 0; i < solution.size(); i++)
+            {
                 bool isSelected = (i == selecteditem);
-                if (ImGui::Selectable(std::to_string(solution[i].first / solution[0].first).c_str(), isSelected)) {
+                if (ImGui::Selectable(std::to_string(solution[i].first / solution[0].first).c_str(), isSelected))
+                {
                     selecteditem = i;
                 }
 
-                if (isSelected) {
+                if (isSelected)
+                {
                     ImGui::SetItemDefaultFocus();
                 }
             }
 
-            if (previousSelectedItem != selecteditem) {
+            if (previousSelectedItem != selecteditem)
+            {
                 tmp = 0.0;
                 ChangeGraph(selecteditem);
             }
@@ -182,7 +186,14 @@ void Render::Draw(Color GraphColor, Color GridColor)
         ImGui::Checkbox("time dependant", &check);
 
         if (check)
-            graph.TimePropagate(1.0, tmp);
+        {
+            graph.TimePropagate(solution[selecteditem].first / solution[0].first, tmp);
+        }
+        else
+        {
+            tmp = 0.0;
+            graph.TimePropagate(0, 0);
+        }
 
         ImGui::End();
 
