@@ -178,8 +178,11 @@ void Render::Draw(Color GraphColor, Color GridColor)
         }
 
         tmp += 0.01;
-        graph.TimePropagate(1.0, tmp);
-        //std::cout << selecteditem<< std::endl;
+
+        ImGui::Checkbox("time dependant", &check);
+
+        if (check)
+            graph.TimePropagate(1.0, tmp);
 
         ImGui::End();
 

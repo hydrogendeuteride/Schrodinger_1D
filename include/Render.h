@@ -37,6 +37,7 @@ private:
     std::vector<std::pair<double, Eigen::VectorXd>> solution;
 
     int selecteditem = -1;
+    bool check = 0;
 
     std::vector<double> x;
 
