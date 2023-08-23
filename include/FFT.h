@@ -64,7 +64,7 @@ namespace FFT
         }
     }
 
-    std::optional<std::vector<std::complex<double>>> FFT_Functional(std::vector<std::complex<double>> &a)
+    std::optional<std::vector<double>> FFT_Functional(std::vector<std::complex<double>> &a)
     {
         auto isPowerOfTwo = [](int n) ->bool{
             if (n == 0) return false;
@@ -76,14 +76,18 @@ namespace FFT
             return std::nullopt;
         }
 
-        std::vector<std::complex<double>> ret;
+        std::vector<double> ret;
         FFT(a);
-        ret = a;
+
+        for (const auto &x: a)
+        {
+            ret.emplace_back(x.real());
+        }
 
         return ret;
     }
 
-    std::optional<std::vector<std::complex<double>>> IFFT_Functional(std::vector<std::complex<double>> &a)
+    std::optional<std::vector<double>> IFFT_Functional(std::vector<std::complex<double>> &a)
     {
         auto isPowerOfTwo = [](int n) ->bool{
             if (n == 0) return false;
@@ -95,9 +99,13 @@ namespace FFT
             return std::nullopt;
         }
 
-        std::vector<std::complex<double>> ret;
+        std::vector<double> ret;
         IFFT(a);
-        ret = a;
+
+        for (const auto &x: a)
+        {
+            ret.emplace_back(x.real());
+        }
 
         return ret;
     }

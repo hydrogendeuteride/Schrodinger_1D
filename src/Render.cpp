@@ -101,7 +101,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, Potential);
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
-    grid.Setup(std::make_shared<Shader>(shader), Range_Min, Range_Max, static_cast<int>(Range_Max - Range_Min));
+    grid.Setup(std::make_shared<Shader>(shader), Range_Min * 2, Range_Max * 2, static_cast<int>(Range_Max - Range_Min) * 2);
 }
 
 void Render::ChangeGraph(int eigenvalue)
