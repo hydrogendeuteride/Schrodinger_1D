@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "Grid.h"
 #include "Potentials.h"
+#include "Wave_Packet.h"
 
 class Render
 {
@@ -36,7 +37,7 @@ private:
 
     std::vector<std::pair<double, Eigen::VectorXd>> solution;
 
-    int selecteditem = -1;
+    int selecteditem = 1;
     bool check = 0;
 
     std::vector<double> x;
@@ -51,6 +52,9 @@ private:
 
     Graph graph;
     Graph potential;
+    Graph packet;
+
+    Wave_Packet wavePacket;
 
     Grid grid;
 };

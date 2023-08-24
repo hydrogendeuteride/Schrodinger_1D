@@ -33,7 +33,8 @@ add_executable(Schrodinger_1D
         src/Spline.cpp
         ${IMGUI_SRC}
         src/Potentials.cpp
-        src/Wave_Packet.cpp)
+        src/Wave_Packet.cpp
+        src/FFT.cpp)
 
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 

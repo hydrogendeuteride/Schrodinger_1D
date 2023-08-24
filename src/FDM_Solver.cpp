@@ -28,7 +28,6 @@ void FDM_Solver::Solve(const std::vector<double> &Potentials)
     Eigen::MatrixXd eigenvectors = s.eigenvectors();
     const Eigen::VectorXd& eigenvalues = s.eigenvalues();
 
-    // Assuming EigenVector is a matrix to store the full eigenvectors with boundary values
     EigenVector = Eigen::MatrixXd(num_grid, eigenvectors.cols());
 
     for (int col = 0; col < eigenvectors.cols(); ++col)
@@ -51,6 +50,9 @@ std::vector<std::pair<double, Eigen::VectorXd>> FDM_Solver::Get_Solution
 
     std::vector<std::pair<double, Eigen::VectorXd >> ret;
 
+    Eigen::VectorXd dummyVector = Eigen::VectorXd::Zero(num_grid);
+    ret.emplace_back(0.0, dummyVector);
+
     for (int i = 0; i < num_grid - 2; ++i)
     {
         ret.emplace_back(EigenValue(i), EigenVector.col(i).normalized());
@@ -67,8 +69,8 @@ std::vector<std::pair<double, Eigen::VectorXd>> FDM_Solver::Get_Solution
 
         std::sort(std::begin(ret), std::end(ret), comp);
 
-        return ret;
     }
+    ret.emplace_back(0.0, dummyVector);
 
     return ret;
 }

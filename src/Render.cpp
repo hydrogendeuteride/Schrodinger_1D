@@ -91,7 +91,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     solution = solver.Get_Solution(true, Potential);
 
     x = Potential::XaxisGenerator(Grid_Num, Range_Min, Range_Max);
-    std::vector<double> y(solution[0].second.data(), solution[0].second.data() + solution[0].second.size());
+    std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
 
     //if y.size ! = x.size error throw
 
@@ -102,6 +102,12 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
     grid.Setup(std::make_shared<Shader>(shader), Range_Min * 2, Range_Max * 2, static_cast<int>(Range_Max - Range_Min) * 2);
+
+
+    //packet generation
+    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.5, 6 * PI);
+    auto data = wavePacket.GetDrawingData(10);
+    packet.setup(data, std::make_shared<Shader>(shader));
 }
 
 void Render::ChangeGraph(int eigenvalue)
@@ -154,14 +160,14 @@ void Render::Draw(Color GraphColor, Color GridColor)
                      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-        if (ImGui::BeginCombo("Eigenvalues", std::to_string(solution[selecteditem].first / solution[0].first).c_str()))
+        if (ImGui::BeginCombo("Eigenvalues", std::to_string(solution[selecteditem].first / solution[1].first).c_str()))
         {
             int previousSelectedItem = selecteditem;
 
             for (int i = 0; i < solution.size(); i++)
             {
                 bool isSelected = (i == selecteditem);
-                if (ImGui::Selectable(std::to_string(solution[i].first / solution[0].first).c_str(), isSelected))
+                if (ImGui::Selectable(std::to_string(solution[i].first / solution[1].first).c_str(), isSelected))
                 {
                     selecteditem = i;
                 }
@@ -187,7 +193,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         if (check)
         {
-            graph.TimePropagate(solution[selecteditem].first / solution[0].first, tmp);
+            graph.TimePropagate(solution[selecteditem].first / solution[1].first, tmp);
         }
         else
         {
@@ -199,6 +205,10 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        wavePacket.TimePropagate(tmp, solution);
+        packet.Update(wavePacket.GetDrawingData(10));
+        packet.draw(Red);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -3,16 +3,19 @@
 
 #include <eigen3/Eigen/Dense>
 #include "FFT.h"
+#include "Potentials.h"
+#include "spline.h"
 
 class Wave_Packet
 {
 public:
     Wave_Packet();
 
-    void PacketGeneration(int Grid_Num, double Range_Max, double Range_Min, double mu, double sigma, double k);
+    void PacketGeneration(int Grid_Num, double Range_Min, double Range_Max, double mu, double sigma, double k);
 
     void TimePropagate(double dt, const std::vector<std::pair<double, Eigen::VectorXd>>& EigenVectors);
 
+    std::vector<Eigen::Vector2d> GetDrawingData(int div);
 private:
     int Grid_Num;
 
@@ -31,6 +34,8 @@ private:
     {
         return gaussian(x, mu, sigma) * cos(k * x);
     }
+
+    void normalize();
 };
 
 #endif //SCHRODINGER_1D_WAVE_PACKET_H
