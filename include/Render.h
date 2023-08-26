@@ -56,6 +56,8 @@ private:
 
     Wave_Packet wavePacket;
 
+    Eigen::MatrixXd Hamiltonian;
+
     Grid grid;
 };
 

@@ -13,6 +13,8 @@ public:
     std::vector<std::pair<double, Eigen::VectorXd>> Get_Solution
     (bool sorted, const std::vector<double> &Potentials);
 
+    Eigen::MatrixXd Hamiltonian;
+
 private:
     int num_grid;
     std::vector<double> Potentials;

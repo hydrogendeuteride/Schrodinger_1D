@@ -15,9 +15,9 @@ int main()
 {
     Render render(SCR_WIDTH, SCR_HEIGHT);
 
-    std::vector<double> x = Potential::XaxisGenerator(256, -6.0, 6.0);
-    std::vector<double> p = Potential::HarmonicOscillatorPotential(256, 1.0, x);
-    render.Setup(256, -6.0, 6.0, p);
+    std::vector<double> x = Potential::XaxisGenerator(1024, -6.0, 6.0);
+    std::vector<double> p = Potential::HarmonicOscillatorPotential(1024, 1.0, x);
+    render.Setup(1024, -6.0, 6.0, p);
 
     render.Draw(Blue, White);
 

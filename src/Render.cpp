@@ -89,6 +89,9 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
 
     solution = solver.Get_Solution(true, Potential);
+    Hamiltonian.resize(Grid_Num, Grid_Num);
+    Hamiltonian.setZero();
+    Hamiltonian.block(1, 1, Grid_Num-2, Grid_Num-2) = solver.Hamiltonian;
 
     x = Potential::XaxisGenerator(Grid_Num, Range_Min, Range_Max);
     std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
@@ -105,7 +108,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 
 
     //packet generation
-    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.5, 6 * PI);
+    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.3, 4.0 * PI);
     auto data = wavePacket.GetDrawingData(10);
     packet.setup(data, std::make_shared<Shader>(shader));
 }
@@ -187,28 +190,28 @@ void Render::Draw(Color GraphColor, Color GridColor)
             ImGui::EndCombo();
         }
 
-        tmp += 0.01;
-
         ImGui::Checkbox("time dependant", &check);
 
         if (check)
         {
+            tmp += 0.01;
             graph.TimePropagate(solution[selecteditem].first / solution[1].first, tmp);
+            wavePacket.TimePropagate(tmp, solution);
+            //wavePacket.TimePropagate(tmp, Hamiltonian);
+            packet.Update(wavePacket.GetDrawingData(10));
+            packet.draw(Red);
         }
         else
         {
             tmp = 0.0;
             graph.TimePropagate(0, 0);
+            packet.draw(Red);
         }
 
         ImGui::End();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        wavePacket.TimePropagate(tmp, solution);
-        packet.Update(wavePacket.GetDrawingData(10));
-        packet.draw(Red);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -220,3 +223,4 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
     glfwTerminate();
 }
+

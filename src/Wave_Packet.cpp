@@ -40,6 +40,13 @@ void Wave_Packet::TimePropagate(double dt, const std::vector<std::pair<double, E
         c[i] = Packet.dot(EigenVectors[i].second);
     }
 
+    for (size_t i = 0; i < c.size(); ++i)
+    {
+        double Ei = EigenVectors[i].first;
+        std::complex<double> phase(0, -Ei * dt);
+        c[i] *= std::exp(phase).real();
+    }
+
     Eigen::VectorXd wave;
     wave.resize(Grid_Num);
     for (int i = 0; i < 32; ++i)
@@ -72,6 +79,23 @@ void Wave_Packet::TimePropagate(double dt, const std::vector<std::pair<double, E
     }
 
     normalize();
+
+    Packet(0) = 0.0;
+    Packet(Grid_Num - 1) = 0.0;
+
+}
+
+void Wave_Packet::TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian)
+{
+    Eigen::MatrixXcd H_complex = -std::complex<double>(0, 1) * Hamiltonian * dt;
+    Eigen::MatrixXcd U = H_complex.exp();
+
+    Packet = (U *  Packet).real();
+
+    normalize();
+
+    Packet(0) = 0.0;
+    Packet(Grid_Num - 1) = 0.0;
 }
 
 std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)

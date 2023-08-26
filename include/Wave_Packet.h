@@ -5,6 +5,8 @@
 #include "FFT.h"
 #include "Potentials.h"
 #include "spline.h"
+#include <eigen3/unsupported/Eigen/MatrixFunctions>
+#include <numeric>
 
 class Wave_Packet
 {
@@ -14,6 +16,9 @@ public:
     void PacketGeneration(int Grid_Num, double Range_Min, double Range_Max, double mu, double sigma, double k);
 
     void TimePropagate(double dt, const std::vector<std::pair<double, Eigen::VectorXd>>& EigenVectors);
+    //not working, don't know why
+
+    void TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian);
 
     std::vector<Eigen::Vector2d> GetDrawingData(int div);
 private:

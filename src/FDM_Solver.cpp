@@ -4,14 +4,14 @@ FDM_Solver::FDM_Solver(int Num_Grid, double range_min, double range_max)
         : num_grid(Num_Grid), range_min(range_min), range_max(range_max)
 {
     dx = (range_max - range_min) / static_cast<double>(num_grid);
+
+    Hamiltonian.resize(num_grid - 2, num_grid - 2);
+
+    Hamiltonian.setZero();
 }
 
 void FDM_Solver::Solve(const std::vector<double> &Potentials)
 {
-    Eigen::MatrixXd Hamiltonian(num_grid - 2, num_grid - 2);
-
-    Hamiltonian.setZero();
-
     for (int i = 0; i < num_grid - 2; ++i)
     {
         Hamiltonian(i, i) = 1.0 / (dx * dx) + Potentials[i + 1];
