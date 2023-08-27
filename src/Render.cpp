@@ -87,11 +87,9 @@ void Render::processinput(GLFWwindow *window)
 void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector<double> &Potential)
 {
     FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+    this->Potential = Potential;
 
     solution = solver.Get_Solution(true, Potential);
-    Hamiltonian.resize(Grid_Num, Grid_Num);
-    Hamiltonian.setZero();
-    Hamiltonian.block(1, 1, Grid_Num-2, Grid_Num-2) = solver.Hamiltonian;
 
     x = Potential::XaxisGenerator(Grid_Num, Range_Min, Range_Max);
     std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
@@ -108,7 +106,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 
 
     //packet generation
-    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.3, 4.0 * PI);
+    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -4.0, 0.3, 2.0 * PI);
     auto data = wavePacket.GetDrawingData(10);
     packet.setup(data, std::make_shared<Shader>(shader));
 }
@@ -125,7 +123,6 @@ void Render::ChangeGraph(int eigenvalue)
 
 void Render::Draw(Color GraphColor, Color GridColor)
 {
-
     double tmp = 0.0;
     while (!glfwWindowShouldClose(window))
     {
@@ -194,9 +191,9 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         if (check)
         {
-            tmp += 0.01;
+            tmp += 0.0001;
             graph.TimePropagate(solution[selecteditem].first / solution[1].first, tmp);
-            wavePacket.TimePropagate(tmp, solution);
+            wavePacket.TimePropagate(tmp, Potential);
             //wavePacket.TimePropagate(tmp, Hamiltonian);
             packet.Update(wavePacket.GetDrawingData(10));
             packet.draw(Red);

@@ -31,36 +31,24 @@ void Wave_Packet::PacketGeneration(int Grid_Num, double Range_Min, double Range_
     }
 
     c.reserve(Grid_Num);
+
+    normalize();
 }
 
-void Wave_Packet::TimePropagate(double dt, const std::vector<std::pair<double, Eigen::VectorXd>> &EigenVectors)
+void Wave_Packet::TimePropagate(double dt, const std::vector<double> &Potential)
 {
-    for (int i = 0; i < 32; ++i)
+    std::vector<std::complex<double>> WaveFunction;
+    for (int i = 0; i < Packet.size(); ++i)
     {
-        c[i] = Packet.dot(EigenVectors[i].second);
+        WaveFunction.emplace_back(Packet[i], 0);
     }
 
-    for (size_t i = 0; i < c.size(); ++i)
+    for (int i = 0; i < WaveFunction.size(); ++i)
     {
-        double Ei = EigenVectors[i].first;
-        std::complex<double> phase(0, -Ei * dt);
-        c[i] *= std::exp(phase).real();
+        WaveFunction[i] *= std::exp(I * Potential[i] * dt / 2.0);
     }
 
-    Eigen::VectorXd wave;
-    wave.resize(Grid_Num);
-    for (int i = 0; i < 32; ++i)
-    {
-        wave += c[i] * EigenVectors[i].second;
-    }
-
-    std::vector<std::complex<double>> wave_complex(Grid_Num);
-    for (int i = 0; i < Grid_Num; ++i)
-    {
-        wave_complex[i] = std::complex<double>(wave[i], 0.0);
-    }
-
-    FFT::FFT(wave_complex);
+    FFT::FFT(WaveFunction);
 
     double dk = 2 * PI / Grid_Num;
     for (int i = 0; i < Grid_Num; ++i)
@@ -68,21 +56,22 @@ void Wave_Packet::TimePropagate(double dt, const std::vector<std::pair<double, E
         double k = i < Grid_Num / 2 ? i * dk : (i - Grid_Num) * dk;
         double energy = 0.5 * k * k;
         std::complex<double> phase(0, -energy * dt);
-        wave_complex[i] *= std::exp(phase);
+        WaveFunction[i] *= std::exp(phase);
     }
 
-    FFT::IFFT(wave_complex);
+    FFT::IFFT(WaveFunction);
 
-    for (int i = 0; i < wave_complex.size(); ++i)
+    for (int i = 0; i < WaveFunction.size(); ++i)
     {
-        Packet(i) = wave_complex[i].real();
+        WaveFunction[i] *= std::exp(I * Potential[i] * dt / 2.0);
+    }
+
+    for (int i = 0; i < WaveFunction.size(); ++i)
+    {
+        Packet[i] = WaveFunction[i].real();
     }
 
     normalize();
-
-    Packet(0) = 0.0;
-    Packet(Grid_Num - 1) = 0.0;
-
 }
 
 void Wave_Packet::TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian)
@@ -93,9 +82,6 @@ void Wave_Packet::TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian)
     Packet = (U *  Packet).real();
 
     normalize();
-
-    Packet(0) = 0.0;
-    Packet(Grid_Num - 1) = 0.0;
 }
 
 std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)
@@ -111,9 +97,8 @@ std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)
 
 void Wave_Packet::normalize()
 {
-    double norm = std::sqrt(Packet.squaredNorm());
-    if (norm > 0.0)
-    {
-        Packet /= norm;
-    }
+    double t = Packet.array().square().sum() * (Range_Max - Range_Min) / static_cast<double>(Grid_Num);
+
+    double norm = std::sqrt(t);
+    Packet /= norm;
 }

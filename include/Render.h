@@ -41,6 +41,7 @@ private:
     bool check = 0;
 
     std::vector<double> x;
+    std::vector<double> Potential;
 
     glm::vec3 CamPos = glm::vec3(0.0f, 0.0f, 10.0f);
     glm::vec3 CamFront = glm::vec3(0.0f, 0.0f, -1.0f);

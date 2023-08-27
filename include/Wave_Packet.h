@@ -8,6 +8,8 @@
 #include <eigen3/unsupported/Eigen/MatrixFunctions>
 #include <numeric>
 
+const std::complex<double> I(0.0, 1.0);
+
 class Wave_Packet
 {
 public:
@@ -15,7 +17,7 @@ public:
 
     void PacketGeneration(int Grid_Num, double Range_Min, double Range_Max, double mu, double sigma, double k);
 
-    void TimePropagate(double dt, const std::vector<std::pair<double, Eigen::VectorXd>>& EigenVectors);
+    void TimePropagate(double dt, const std::vector<double>& Potential);
     //not working, don't know why
 
     void TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian);
@@ -37,7 +39,7 @@ private:
 
     double wavePacket(double x, double mu, double sigma, double k)
     {
-        return gaussian(x, mu, sigma) * cos(k * x);
+        return gaussian(x, mu, sigma) * -cos(k * x);
     }
 
     void normalize();
