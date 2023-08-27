@@ -28,7 +28,7 @@ private:
 
     double Range_Max, Range_Min;
 
-    Eigen::VectorXd Packet;
+    Eigen::VectorXcd Packet;
 
     std::vector<double> c;
 

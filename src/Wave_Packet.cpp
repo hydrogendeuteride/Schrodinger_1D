@@ -40,12 +40,12 @@ void Wave_Packet::TimePropagate(double dt, const std::vector<double> &Potential)
     std::vector<std::complex<double>> WaveFunction;
     for (int i = 0; i < Packet.size(); ++i)
     {
-        WaveFunction.emplace_back(Packet[i], 0);
+        WaveFunction.emplace_back(Packet[i].real(), Packet[i].imag());
     }
 
     for (int i = 0; i < WaveFunction.size(); ++i)
     {
-        WaveFunction[i] *= std::exp(I * Potential[i] * dt / 2.0);
+        WaveFunction[i] *= std::exp(-I * Potential[i] * dt / 2.0);
     }
 
     FFT::FFT(WaveFunction);
@@ -63,12 +63,12 @@ void Wave_Packet::TimePropagate(double dt, const std::vector<double> &Potential)
 
     for (int i = 0; i < WaveFunction.size(); ++i)
     {
-        WaveFunction[i] *= std::exp(I * Potential[i] * dt / 2.0);
+        WaveFunction[i] *= std::exp(-I * Potential[i] * dt / 2.0);
     }
 
     for (int i = 0; i < WaveFunction.size(); ++i)
     {
-        Packet[i] = WaveFunction[i].real();
+        Packet[i] = WaveFunction[i];
     }
 
     normalize();
@@ -88,7 +88,11 @@ std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)
 {
     std::vector<double> x = Potential::XaxisGenerator(Grid_Num, Range_Min, Range_Max);
 
-    std::vector<double> y(Packet.data(), Packet.data() + Packet.size());
+    std::vector<double> y;
+    for (auto i : Packet)
+    {
+        y.push_back(i.real());
+    }
 
     std::vector<Eigen::Vector2d> ret = SplinePoints(y.size(), div, x, y);
 
@@ -97,8 +101,21 @@ std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)
 
 void Wave_Packet::normalize()
 {
-    double t = Packet.array().square().sum() * (Range_Max - Range_Min) / static_cast<double>(Grid_Num);
+//    double t = Packet.array().square().sum() * (Range_Max - Range_Min) / static_cast<double>(Grid_Num);
+//
+//    double norm = std::sqrt(t);
+//    Packet /= norm;
 
-    double norm = std::sqrt(t);
-    Packet /= norm;
+    double norm = 0.0;
+
+    // 절대값의 제곱의 합을 구합니다.
+    for(int i = 0; i < Packet.size(); ++i) {
+        norm += std::abs(Packet[i]) * std::abs(Packet[i]);
+    }
+    norm = std::sqrt(norm);
+
+    // 절대값이 0이 아니라면 정규화를 진행합니다.
+    if(norm > 0.0) {
+        Packet /= norm;
+    }
 }

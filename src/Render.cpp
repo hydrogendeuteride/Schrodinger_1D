@@ -106,7 +106,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 
 
     //packet generation
-    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -4.0, 0.3, 2.0 * PI);
+    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.3, 2 * PI);
     auto data = wavePacket.GetDrawingData(10);
     packet.setup(data, std::make_shared<Shader>(shader));
 }
