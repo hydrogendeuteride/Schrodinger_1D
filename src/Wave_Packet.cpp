@@ -79,7 +79,7 @@ void Wave_Packet::TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian)
     Eigen::MatrixXcd H_complex = -std::complex<double>(0, 1) * Hamiltonian * dt;
     Eigen::MatrixXcd U = H_complex.exp();
 
-    Packet = (U *  Packet).real();
+    Packet = (U * Packet).real();
 
     normalize();
 }
@@ -89,7 +89,7 @@ std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)
     std::vector<double> x = Potential::XaxisGenerator(Grid_Num, Range_Min, Range_Max);
 
     std::vector<double> y;
-    for (auto i : Packet)
+    for (auto i: Packet)
     {
         y.push_back(i.real());
     }
@@ -108,14 +108,14 @@ void Wave_Packet::normalize()
 
     double norm = 0.0;
 
-    // 절대값의 제곱의 합을 구합니다.
-    for(int i = 0; i < Packet.size(); ++i) {
+    for (int i = 0; i < Packet.size(); ++i)
+    {
         norm += std::abs(Packet[i]) * std::abs(Packet[i]);
     }
     norm = std::sqrt(norm);
 
-    // 절대값이 0이 아니라면 정규화를 진행합니다.
-    if(norm > 0.0) {
+    if (norm > 0.0)
+    {
         Packet /= norm;
     }
 }

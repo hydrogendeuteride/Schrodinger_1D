@@ -31,8 +31,6 @@ private:
 
     void processinput(GLFWwindow *window);
 
-    void ChangeGraph(int eigenvalue);
-
     const int SCR_WIDTH, SCR_HEIGHT;
 
     std::vector<std::pair<double, Eigen::VectorXd>> solution;
@@ -60,6 +58,14 @@ private:
     Eigen::MatrixXd Hamiltonian;
 
     Grid grid;
+
+    double lastTime;
+
+    int Grid_Num;
+
+    double k = 1.0;
+    double a = 0.5;
+    double V0 = 10.0;
 };
 
 #endif //SCHRODINGER_1D_RENDER_H

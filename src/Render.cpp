@@ -2,6 +2,25 @@
 #include <numeric>
 #include <cstdlib>
 
+std::string GetPotentialName(PotentialType potential)
+{
+    switch (potential)
+    {
+        case HarmonicOscillator:
+            return "Harmonic Oscillator";
+        case FreeSpace:
+            return "Free Space";
+        case FiniteWell:
+            return "Finite Well";
+        case InfiniteWell:
+            return "Infinite Well";
+        case DiracDelta:
+            return "Dirac Delta";
+        default:
+            return "Harmonic Oscillator";
+    }
+}
+
 Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
 {
     if (!glfwInit())
@@ -102,34 +121,32 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, Potential);
     potential.setup(PotentialPlot, std::make_shared<Shader>(shader));
 
-    grid.Setup(std::make_shared<Shader>(shader), Range_Min * 2, Range_Max * 2, static_cast<int>(Range_Max - Range_Min) * 2);
+    grid.Setup(std::make_shared<Shader>(shader), Range_Min * 2, Range_Max * 2,
+               static_cast<int>(Range_Max - Range_Min) * 2);
 
 
     //packet generation
     wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.1, 2 * PI);
     auto data = wavePacket.GetDrawingData(10);
     packet.setup(data, std::make_shared<Shader>(shader));
-}
 
-void Render::ChangeGraph(int eigenvalue)
-{
-    std::vector<double> y(solution[eigenvalue].second.data(),
-                          solution[eigenvalue].second.data() + solution[eigenvalue].second.size());
-
-    std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(y.size(), 10, x, y);
-
-    graph.Update(GraphPlot);
+    this->Grid_Num = Grid_Num;
 }
 
 void Render::Draw(Color GraphColor, Color GridColor)
 {
     double tmp = 0.0;
+    double time = 0.0;
+    unsigned int frames = 0;
+    PotentialType currentPotential = HarmonicOscillator;
     while (!glfwWindowShouldClose(window))
     {
         processinput(window);
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        double currentTime = glfwGetTime();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -150,7 +167,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         grid.Draw(White);
 
-        ImGui::SetNextWindowPos(ImVec2(100, 100));
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(400, 300));
 
         ImGuiIO &io = ImGui::GetIO();
@@ -158,7 +175,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         ImGui::Begin("window", nullptr,
                      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoMove |
-                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
         if (ImGui::BeginCombo("Eigenvalues", std::to_string(solution[selecteditem].first / solution[1].first).c_str()))
         {
@@ -180,8 +197,12 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
             if (previousSelectedItem != selecteditem)
             {
-                tmp = 0.0;
-                ChangeGraph(selecteditem);
+                std::vector<double> y(solution[selecteditem].second.data(),
+                                      solution[selecteditem].second.data() + solution[selecteditem].second.size());
+
+                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(y.size(), 10, x, y);
+
+                graph.Update(GraphPlot);
             }
 
             ImGui::EndCombo();
@@ -192,7 +213,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
         if (check)
         {
             tmp += 0.0001;
-            graph.TimePropagate(solution[selecteditem].first / solution[1].first, tmp);
+            graph.TimePropagate(solution[selecteditem].first / solution[1].first, glfwGetTime());
             wavePacket.TimePropagate(tmp, Potential);
             //wavePacket.TimePropagate(tmp, Hamiltonian);
             packet.Update(wavePacket.GetDrawingData(10));
@@ -200,15 +221,77 @@ void Render::Draw(Color GraphColor, Color GridColor)
         }
         else
         {
-            tmp = 0.0;
+            //tmp = 0.0;
             graph.TimePropagate(0, 0);
             packet.draw(Red);
         }
 
         ImGui::End();
 
+        ImGui::SetNextWindowPos(ImVec2(0, 300));
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
+        ImGui::Begin("window4", nullptr,
+                     ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+        if (ImGui::BeginCombo("Potential Type", GetPotentialName(currentPotential).c_str()))
+        {
+            if (ImGui::Selectable("Harmonic Oscillator", currentPotential == HarmonicOscillator))
+            {
+                currentPotential = HarmonicOscillator;
+            }
+            if (ImGui::Selectable("Free Space", currentPotential == FreeSpace))
+            {
+                currentPotential = FreeSpace;
+            }
+            if (ImGui::Selectable("Infinite Well", currentPotential == InfiniteWell))
+            {
+                currentPotential = InfiniteWell;
+            }
+            if (ImGui::Selectable("Finite Well", currentPotential == FiniteWell))
+            {
+                currentPotential = FiniteWell;
+            }
+            ImGui::EndCombo();
+        }
+        if (currentPotential == HarmonicOscillator)
+        {
+            float k_temp = static_cast<float>(k);
+            if (ImGui::SliderFloat("K (spring constant)", &k_temp, 0.1, 10.0))
+            {
+                k = static_cast<double>(k_temp);
+            }
+            if (ImGui::Button("Add"))
+            {
+                auto t = Potential::HarmonicOscillatorPotential(Grid_Num, k, x);
+                for (int i = 0; i < Grid_Num; ++i)
+                {
+                    Potential[i] += t[i];
+                }
+            }
+            auto newGraph = SplinePoints(Potential.size(), 10, x, Potential);
+            potential.Update(newGraph);
+        }
+        if (ImGui::Button("Reset potential to zero"))
+        {
+            for (auto &z: Potential)
+                z = 0.0;
+
+            std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, Potential);
+            potential.Update(PotentialPlot);
+        }
+
+        ImGui::End();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        frames++;
+        if (currentTime - lastTime > 1.0)
+        {
+            lastTime = glfwGetTime();
+            std::cout << "FPS: " << frames << "\n";
+            frames = 0;
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

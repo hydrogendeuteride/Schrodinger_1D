@@ -39,7 +39,7 @@ private:
 
     double wavePacket(double x, double mu, double sigma, double k)
     {
-        return gaussian(x, mu, sigma) * -cos(k * x);
+        return gaussian(x, mu, sigma) * cos(k * x);
     }
 
     void normalize();
