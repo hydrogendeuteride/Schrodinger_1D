@@ -131,6 +131,8 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
     packet.setup(data, std::make_shared<Shader>(shader));
 
     this->Grid_Num = Grid_Num;
+    this->Range_Min = Range_Min;
+    this->Range_Max = Range_Max;
 }
 
 void Render::Draw(Color GraphColor, Color GridColor)
@@ -253,6 +255,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
             }
             ImGui::EndCombo();
         }
+
         if (currentPotential == HarmonicOscillator)
         {
             float k_temp = static_cast<float>(k);
@@ -267,10 +270,50 @@ void Render::Draw(Color GraphColor, Color GridColor)
                 {
                     Potential[i] += t[i];
                 }
+
+                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+
+                solution = solver.Get_Solution(true, Potential);
+                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+
+                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
+                potential.Update(GraphPlot);
             }
             auto newGraph = SplinePoints(Potential.size(), 10, x, Potential);
             potential.Update(newGraph);
         }
+        if (currentPotential == InfiniteWell)
+        {
+            auto start_temp = static_cast<float>(wellStart);
+            auto end_temp = static_cast<float>(wellEnd);
+
+            if (ImGui::SliderFloat("Well Start", &start_temp, -6.0f, 6.0f) ||
+                ImGui::SliderFloat("Well End", &end_temp, -6.0f, 6.0f))
+            {
+                if (wellEnd <= wellStart)
+                    wellEnd = wellStart;
+
+                wellStart = static_cast<double>(start_temp);
+                wellEnd = static_cast<double>(end_temp);
+            }
+            if (ImGui::Button("Add"))
+            {
+                auto t = Potential::InfiniteSquareWell(Grid_Num, wellStart, wellEnd, Range_Min);
+                for (int i = 0; i < Grid_Num; ++i)
+                {
+                    Potential[i] += t[i];
+                }
+
+                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+
+                solution = solver.Get_Solution(true, Potential);
+                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+
+                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
+                potential.Update(GraphPlot);
+            }
+        }
+
         if (ImGui::Button("Reset potential to zero"))
         {
             for (auto &z: Potential)

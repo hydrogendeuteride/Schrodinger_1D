@@ -1,5 +1,7 @@
 #include "Potentials.h"
 
+constexpr double INFINITE_POTENTIAL = 10.0;
+
 std::vector<double> Potential::HarmonicOscillatorPotential(int Num_Grid, double Coeff, std::vector<double> &x)
 {
     std::vector<double> tmp;
@@ -10,6 +12,34 @@ std::vector<double> Potential::HarmonicOscillatorPotential(int Num_Grid, double 
     }
 
     return tmp;
+}
+
+std::vector<double> Potential::InfiniteSquareWell(int Num_Grid, double start, double end, double MinRange)
+{
+    std::vector<double> potential(Num_Grid, INFINITE_POTENTIAL);
+
+    int startIndex = static_cast<int>((start - MinRange) / 2.0 * Num_Grid);
+    int endIndex = static_cast<int>((end-MinRange) / 2.0 * Num_Grid);
+
+    for (int i = startIndex; i < endIndex; i++) {
+        potential[i] = 0.0;
+    }
+
+    return potential;
+}
+
+std::vector<double> Potential::FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth)
+{
+    std::vector<double> potential(Num_Grid, 0.0);
+
+    int startIndex = static_cast<int>(start * Num_Grid);
+    int endIndex = static_cast<int>(end * Num_Grid);
+
+    for (int i = startIndex; i < endIndex; i++) {
+        potential[i] = wellDepth;
+    }
+
+    return potential;
 }
 
 std::vector<double> Potential::XaxisGenerator(int Grid_Num, double Range_Min, double Range_Max)

@@ -62,10 +62,12 @@ private:
     double lastTime;
 
     int Grid_Num;
+    double Range_Min, Range_Max;
 
     double k = 1.0;
     double a = 0.5;
     double V0 = 10.0;
+    double wellStart, wellEnd;
 };
 
 #endif //SCHRODINGER_1D_RENDER_H

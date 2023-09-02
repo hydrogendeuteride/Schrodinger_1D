@@ -101,11 +101,6 @@ std::vector<Eigen::Vector2d> Wave_Packet::GetDrawingData(int div)
 
 void Wave_Packet::normalize()
 {
-//    double t = Packet.array().square().sum() * (Range_Max - Range_Min) / static_cast<double>(Grid_Num);
-//
-//    double norm = std::sqrt(t);
-//    Packet /= norm;
-
     double norm = 0.0;
 
     for (int i = 0; i < Packet.size(); ++i)
