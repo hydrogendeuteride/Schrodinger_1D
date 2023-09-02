@@ -15,4 +15,6 @@ std::vector<Spline> CubicSpline(int n, std::vector<double>& x, std::vector<doubl
 
 std::vector<Eigen::Vector2d> SplinePoints(int n, int div, std::vector<double>& x, std::vector<double>& y);
 
+std::vector<Eigen::Vector2d> LinearSpline(int n, std::vector<double>& x, const std::vector<double>& y);
+
 #endif //SCHRODINGER_1D_SPLINE_H

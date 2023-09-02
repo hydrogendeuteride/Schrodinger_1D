@@ -309,7 +309,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
                 solution = solver.Get_Solution(true, Potential);
                 std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
 
-                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
+                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
                 potential.Update(GraphPlot);
             }
         }

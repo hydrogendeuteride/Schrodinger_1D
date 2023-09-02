@@ -18,8 +18,8 @@ std::vector<double> Potential::InfiniteSquareWell(int Num_Grid, double start, do
 {
     std::vector<double> potential(Num_Grid, INFINITE_POTENTIAL);
 
-    int startIndex = static_cast<int>((start - MinRange) / 2.0 * Num_Grid);
-    int endIndex = static_cast<int>((end-MinRange) / 2.0 * Num_Grid);
+    int startIndex = static_cast<int>((start - MinRange) / 12.0 * Num_Grid);
+    int endIndex = static_cast<int>((end-MinRange) / 12.0 * Num_Grid);
 
     for (int i = startIndex; i < endIndex; i++) {
         potential[i] = 0.0;

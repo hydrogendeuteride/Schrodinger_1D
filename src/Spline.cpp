@@ -64,3 +64,29 @@ std::vector<Eigen::Vector2d> SplinePoints(int n, int div, std::vector<double>& x
 
     return spline;
 }
+
+std::vector<Eigen::Vector2d> LinearSpline(int n, std::vector<double>& x, const std::vector<double>& y) {
+    if (x.size() != y.size() || x.size() < 2 || n < 2) {
+        throw std::runtime_error("Invalid input sizes or number of points");
+    }
+
+    std::vector<Eigen::Vector2d> sampledPoints;
+
+    for (size_t i = 0; i < x.size() - 1; ++i) {
+        double m = (y[i+1] - y[i]) / (x[i+1] - x[i]);
+        double b = y[i] - m * x[i];
+
+        for (int j = 0; j < n; ++j) {
+            double fraction = static_cast<double>(j) / (n - 1);
+            double xi = x[i] + fraction * (x[i+1] - x[i]);
+            double yi = m * xi + b;
+            sampledPoints.push_back(Eigen::Vector2d(xi, yi));
+        }
+    }
+
+    if (sampledPoints.back() != Eigen::Vector2d(x.back(), y.back())) {
+        sampledPoints.push_back(Eigen::Vector2d(x.back(), y.back()));
+    }
+
+    return sampledPoints;
+}
