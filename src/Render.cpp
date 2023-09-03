@@ -239,7 +239,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
             if(ImGui::Button("Generate Packet"))
             {
-                wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k);
+                wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k_freq);
                 packet.Update(wavePacket.GetDrawingData(10));
                 packet.draw(Red);
             }
