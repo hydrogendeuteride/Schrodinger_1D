@@ -1,6 +1,6 @@
 #include "Potentials.h"
 
-constexpr double INFINITE_POTENTIAL = 10.0;
+constexpr double INFINITE_POTENTIAL = 1e2;
 
 std::vector<double> Potential::HarmonicOscillatorPotential(int Num_Grid, double Coeff, std::vector<double> &x)
 {
@@ -28,12 +28,12 @@ std::vector<double> Potential::InfiniteSquareWell(int Num_Grid, double start, do
     return potential;
 }
 
-std::vector<double> Potential::FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth)
+std::vector<double> Potential::FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth, double MinRange)
 {
     std::vector<double> potential(Num_Grid, 0.0);
 
-    int startIndex = static_cast<int>(start * Num_Grid);
-    int endIndex = static_cast<int>(end * Num_Grid);
+    int startIndex = static_cast<int>((start - MinRange) / 12.0 * Num_Grid);
+    int endIndex = static_cast<int>((end-MinRange) / 12.0 * Num_Grid);
 
     for (int i = startIndex; i < endIndex; i++) {
         potential[i] = wellDepth;

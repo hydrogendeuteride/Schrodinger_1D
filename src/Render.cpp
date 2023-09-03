@@ -126,7 +126,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 
 
     //packet generation
-    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, -3.0, 0.1, 2 * PI);
+    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k_freq);
     auto data = wavePacket.GetDrawingData(10);
     packet.setup(data, std::make_shared<Shader>(shader));
 
@@ -179,14 +179,14 @@ void Render::Draw(Color GraphColor, Color GridColor)
                      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
-        if (ImGui::BeginCombo("Eigenvalues", std::to_string(solution[selecteditem].first / solution[1].first).c_str()))
+        if (ImGui::BeginCombo("Eigenvalues", std::to_string(selecteditem).c_str()))
         {
             int previousSelectedItem = selecteditem;
 
             for (int i = 0; i < solution.size(); i++)
             {
                 bool isSelected = (i == selecteditem);
-                if (ImGui::Selectable(std::to_string(solution[i].first / solution[1].first).c_str(), isSelected))
+                if (ImGui::Selectable(std::to_string(i).c_str(), isSelected))
                 {
                     selecteditem = i;
                 }
@@ -214,20 +214,47 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
         if (check)
         {
-            tmp += 0.0001;
             graph.TimePropagate(solution[selecteditem].first / solution[1].first, glfwGetTime());
-            wavePacket.TimePropagate(tmp, Potential);
-            //wavePacket.TimePropagate(tmp, Hamiltonian);
-            packet.Update(wavePacket.GetDrawingData(10));
-            packet.draw(Red);
         }
         else
         {
-            //tmp = 0.0;
             graph.TimePropagate(0, 0);
-            packet.draw(Red);
         }
 
+        ImGui::Checkbox("Wave Packet Draw", &wavePacketDraw);
+        if (wavePacketDraw)
+        {
+            auto mu_temp = static_cast<float>(mu);
+            auto sigma_temp = static_cast<float>(sigma);
+            auto k_freq_temp = static_cast<float>(k_freq);
+
+            if (ImGui::SliderFloat("mu", &mu_temp, Range_Min, Range_Max) ||
+                ImGui::SliderFloat("sigma", &sigma_temp, 0.01, 2.0) ||
+                ImGui::SliderFloat("k", &k_freq_temp, PI, 128 * PI))
+            {
+                mu = static_cast<double>(mu_temp);
+                sigma = static_cast<double>(sigma_temp);
+                k_freq = static_cast<double>(k_freq_temp);
+            }
+
+            if(ImGui::Button("Generate Packet"))
+            {
+                wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k);
+                packet.Update(wavePacket.GetDrawingData(10));
+                packet.draw(Red);
+            }
+
+            ImGui::Checkbox("Wave Packet Propagate", &wavePacketPropagate);
+            if (wavePacketPropagate)
+            {
+                tmp += 0.0001;
+                wavePacket.TimePropagate(tmp, Potential);
+                packet.Update(wavePacket.GetDrawingData(10));
+                packet.draw(Red);
+            }
+            else
+                packet.draw(Red);
+        }
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(0, 300));
@@ -299,6 +326,41 @@ void Render::Draw(Color GraphColor, Color GridColor)
             if (ImGui::Button("Add"))
             {
                 auto t = Potential::InfiniteSquareWell(Grid_Num, wellStart, wellEnd, Range_Min);
+                for (int i = 0; i < Grid_Num; ++i)
+                {
+                    Potential[i] += t[i];
+                }
+
+                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+
+                solution = solver.Get_Solution(true, Potential);
+                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+
+                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+                potential.Update(GraphPlot);
+            }
+        }
+
+        if (currentPotential == FiniteWell)
+        {
+            auto start_temp = static_cast<float>(wellStart);
+            auto end_temp = static_cast<float>(wellEnd);
+            auto depth_temp = static_cast<float>(wellDepth);
+
+            if (ImGui::SliderFloat("Well Start", &start_temp, -6.0f, 6.0f) ||
+                ImGui::SliderFloat("Well End", &end_temp, -6.0f, 6.0f) ||
+                ImGui::SliderFloat("well Depth", &depth_temp, -10.0f, 0.0f))
+            {
+                if (wellEnd <= wellStart)
+                    wellEnd = wellStart;
+
+                wellStart = static_cast<double>(start_temp);
+                wellEnd = static_cast<double>(end_temp);
+                wellDepth = static_cast<double>(depth_temp);
+            }
+            if (ImGui::Button("Add"))
+            {
+                auto t = Potential::FiniteSquareWell(Grid_Num, wellStart, wellEnd, wellDepth, Range_Min);
                 for (int i = 0; i < Grid_Num; ++i)
                 {
                     Potential[i] += t[i];

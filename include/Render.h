@@ -37,6 +37,8 @@ private:
 
     int selecteditem = 1;
     bool check = 0;
+    bool wavePacketDraw = false;
+    bool wavePacketPropagate = false;
 
     std::vector<double> x;
     std::vector<double> Potential;
@@ -68,6 +70,9 @@ private:
     double a = 0.5;
     double V0 = 10.0;
     double wellStart, wellEnd;
+    double wellDepth;
+
+    double mu = -3.0, sigma = 0.1, k_freq = 2 * PI;
 };
 
 #endif //SCHRODINGER_1D_RENDER_H

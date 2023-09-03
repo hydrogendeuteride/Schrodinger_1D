@@ -9,7 +9,7 @@ namespace Potential
 
     std::vector<double> InfiniteSquareWell(int Num_Grid, double start, double end, double MinRange);
 
-    std::vector<double> FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth);
+    std::vector<double> FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth, double MinRange);
 
     std::vector<double> XaxisGenerator(int Grid_Num, double Range_Min, double Range_Max);
 }
