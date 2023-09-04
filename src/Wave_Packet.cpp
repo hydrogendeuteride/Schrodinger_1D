@@ -37,6 +37,17 @@ void Wave_Packet::PacketGeneration(int Grid_Num, double Range_Min, double Range_
 
 void Wave_Packet::TimePropagate(double dt, const std::vector<double> &Potential)
 {
+    /*
+     * wave packet time evolution scheme:
+     * 1. propagate wave package half step forward in position space \psi * e^{-i * V * dt / 2.0}
+     * 2. FFT(wave packet)
+     * 3. propagate wave packet full step forward in momentum space \psi * e^{-i * T * dt}
+     *      in momentum space, laplacian is -k^2(k = wave number)
+     * 4. IFFT(wave packet)
+     * 5. propagate wave package half step forward in position space \psi * e^{-i * V * dt / 2.0}
+     *
+     * \hbar and m is normalized to 1.0
+     */
     std::vector<std::complex<double>> WaveFunction;
     for (int i = 0; i < Packet.size(); ++i)
     {
@@ -76,6 +87,9 @@ void Wave_Packet::TimePropagate(double dt, const std::vector<double> &Potential)
 
 void Wave_Packet::TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian)
 {
+    /*
+     * \psi * e^{-iHdt}
+     */
     Eigen::MatrixXcd H_complex = -std::complex<double>(0, 1) * Hamiltonian * dt;
     Eigen::MatrixXcd U = H_complex.exp();
 

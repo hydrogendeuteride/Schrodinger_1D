@@ -5,15 +5,15 @@
 #include <vector>
 #include <algorithm>
 
-class FDM_Solver
+class FDM_Solver//eigenstate solver for 1d schrodinger equation
 {
 public:
     FDM_Solver(int Num_Grid, double range_min, double range_max);
 
     std::vector<std::pair<double, Eigen::VectorXd>> Get_Solution
-    (bool sorted, const std::vector<double> &Potentials);
+    (bool sorted, const std::vector<double> &Potentials);//get sorted <eigenvalus, eigenvector> pair vector
 
-    Eigen::MatrixXd Hamiltonian;
+    Eigen::MatrixXd Hamiltonian;//just for boilerplate code
 
 private:
     int num_grid;
@@ -24,7 +24,7 @@ private:
 
     double dx;
 
-    void Solve(const std::vector<double>& Potentials);
+    void Solve(const std::vector<double>& Potentials);//solve eigenstate problem
 
     Eigen::MatrixXd EigenVector;
     Eigen::VectorXd EigenValue;

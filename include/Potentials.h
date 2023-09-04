@@ -5,13 +5,13 @@
 
 namespace Potential
 {
-    std::vector<double> HarmonicOscillatorPotential(int Num_Grid, double Coeff, std::vector<double> &x);
+    std::vector<double> HarmonicOscillatorPotential(int Num_Grid, double Coeff, std::vector<double> &x);//Coeff * x * x
 
     std::vector<double> InfiniteSquareWell(int Num_Grid, double start, double end, double MinRange);
 
     std::vector<double> FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth, double MinRange);
 
-    std::vector<double> XaxisGenerator(int Grid_Num, double Range_Min, double Range_Max);
+    std::vector<double> XaxisGenerator(int Grid_Num, double Range_Min, double Range_Max);//equal grid generator in range [R_min, R_max]
 }
 
 enum PotentialType

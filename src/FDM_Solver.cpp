@@ -12,6 +12,10 @@ FDM_Solver::FDM_Solver(int Num_Grid, double range_min, double range_max)
 
 void FDM_Solver::Solve(const std::vector<double> &Potentials)
 {
+    /*
+     * H \psi = E \psi
+     * H = n X n matrix, E = eigenvalues
+     */
     for (int i = 0; i < num_grid - 2; ++i)
     {
         Hamiltonian(i, i) = 1.0 / (dx * dx) + Potentials[i + 1];

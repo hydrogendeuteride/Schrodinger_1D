@@ -15,14 +15,13 @@ class Wave_Packet
 public:
     Wave_Packet();
 
-    void PacketGeneration(int Grid_Num, double Range_Min, double Range_Max, double mu, double sigma, double k);
+    void PacketGeneration(int Grid_Num, double Range_Min, double Range_Max, double mu, double sigma, double k);//generate wave packet
 
-    void TimePropagate(double dt, const std::vector<double>& Potential);
-    //not working, don't know why
+    void TimePropagate(double dt, const std::vector<double>& Potential);//O(n log n) version, Split-step method
 
-    void TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian);
+    void TimePropagate(double dt, const Eigen::MatrixXd &Hamiltonian);//O(n^2) version
 
-    std::vector<Eigen::Vector2d> GetDrawingData(int div);
+    std::vector<Eigen::Vector2d> GetDrawingData(int div);//for drawing graph(use graph.h)
 private:
     int Grid_Num;
 
@@ -42,7 +41,7 @@ private:
         return gaussian(x, mu, sigma) * cos(k * x);
     }
 
-    void normalize();
+    void normalize();//normalize wave packet
 };
 
 #endif //SCHRODINGER_1D_WAVE_PACKET_H

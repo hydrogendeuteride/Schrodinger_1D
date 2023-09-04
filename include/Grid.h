@@ -11,12 +11,12 @@ class Grid
 public:
     Grid();
 
-    void Draw(Color color);
+    void Draw(Color color);//draw grid with color
 
-    void Setup(const std::shared_ptr<Shader> &shader, double Range_Min, double Range_Max, int Grid_Num);
+    void Setup(const std::shared_ptr<Shader> &shader, double Range_Min, double Range_Max, int Grid_Num);//setup grid, shader etc
 
 private:
-    std::vector<float> GridGeneration(double Range_Min, double Range_Max, int Grid_Num);
+    std::vector<float> GridGeneration(double Range_Min, double Range_Max, int Grid_Num);//generate grid with grid number
 
     unsigned int VAO, VBO;
 
