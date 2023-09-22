@@ -42,6 +42,17 @@ std::vector<double> Potential::FiniteSquareWell(int Num_Grid, double start, doub
     return potential;
 }
 
+std::vector<double> Potential::DiracDelta(int Num_Grid, double position, double MinRange)
+{
+    std::vector<double> potential(Num_Grid, 0.0);
+
+    int startIndex = static_cast<int>((position - MinRange) / 12.0 * Num_Grid);
+
+    potential[startIndex] = INFINITE_POTENTIAL;
+
+    return potential;
+}
+
 std::vector<double> Potential::XaxisGenerator(int Grid_Num, double Range_Min, double Range_Max)
 {
     double dx = (Range_Max - Range_Min) / static_cast<double>(Grid_Num);

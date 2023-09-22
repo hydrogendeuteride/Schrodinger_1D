@@ -280,6 +280,10 @@ void Render::Draw(Color GraphColor, Color GridColor)
             {
                 currentPotential = FiniteWell;
             }
+            if (ImGui::Selectable("DiracDelta", currentPotential == DiracDelta))
+            {
+                currentPotential = DiracDelta;
+            }
             ImGui::EndCombo();
         }
 
@@ -326,6 +330,32 @@ void Render::Draw(Color GraphColor, Color GridColor)
             if (ImGui::Button("Add"))
             {
                 auto t = Potential::InfiniteSquareWell(Grid_Num, wellStart, wellEnd, Range_Min);
+                for (int i = 0; i < Grid_Num; ++i)
+                {
+                    Potential[i] += t[i];
+                }
+
+                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+
+                solution = solver.Get_Solution(true, Potential);
+                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+
+                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+                potential.Update(GraphPlot);
+            }
+        }
+
+        if (currentPotential == DiracDelta)
+        {
+            auto start_temp = static_cast<float>(wellStart);
+
+            if (ImGui::SliderFloat("Start", &start_temp, -6.0f, 6.0f))
+            {
+                wellStart = static_cast<double>(start_temp);
+            }
+            if (ImGui::Button("Add"))
+            {
+                auto t = Potential::DiracDelta(Grid_Num, wellStart, Range_Min);
                 for (int i = 0; i < Grid_Num; ++i)
                 {
                     Potential[i] += t[i];

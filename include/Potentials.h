@@ -12,6 +12,8 @@ namespace Potential
     std::vector<double> FiniteSquareWell(int Num_Grid, double start, double end, double wellDepth, double MinRange);
 
     std::vector<double> XaxisGenerator(int Grid_Num, double Range_Min, double Range_Max);//equal grid generator in range [R_min, R_max]
+
+    std::vector<double> DiracDelta(int Num_Grid, double position, double MinRange);
 }
 
 enum PotentialType
