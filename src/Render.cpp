@@ -1,6 +1,8 @@
 #include "Render.h"
 #include <numeric>
 #include <cstdlib>
+#include <future>
+#include <chrono>
 
 std::string GetPotentialName(PotentialType potential)
 {
@@ -87,19 +89,19 @@ void Render::scroll_callback(double xoffset, double yoffset)
         fov = 60.0f;
 }
 
-void Render::processinput(GLFWwindow *window)
+void Render::processinput(GLFWwindow *pWwindow)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(pWwindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(pWwindow, true);
 
     float cameraspeed = 0.05f;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(pWwindow, GLFW_KEY_W) == GLFW_PRESS)
         CamPos += cameraspeed * CamUp;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (glfwGetKey(pWwindow, GLFW_KEY_S) == GLFW_PRESS)
         CamPos -= cameraspeed * CamUp;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (glfwGetKey(pWwindow, GLFW_KEY_A) == GLFW_PRESS)
         CamPos -= glm::normalize(glm::cross(CamFront, CamUp)) * cameraspeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (glfwGetKey(pWwindow, GLFW_KEY_D) == GLFW_PRESS)
         CamPos += glm::normalize(glm::cross(CamFront, CamUp)) * cameraspeed;
 }
 
@@ -141,6 +143,13 @@ void Render::Draw(Color GraphColor, Color GridColor)
     double time = 0.0;
     unsigned int frames = 0;
     PotentialType currentPotential = HarmonicOscillator;
+
+    std::future<std::vector<std::pair<double, Eigen::VectorXd>>> future;
+
+    bool buttonPressed = false;
+
+    FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+
     while (!glfwWindowShouldClose(window))
     {
         processinput(window);
@@ -237,7 +246,7 @@ void Render::Draw(Color GraphColor, Color GridColor)
                 k_freq = static_cast<double>(k_freq_temp);
             }
 
-            if(ImGui::Button("Generate Packet"))
+            if (ImGui::Button("Generate Packet"))
             {
                 wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k_freq);
                 packet.Update(wavePacket.GetDrawingData(10));
@@ -302,16 +311,17 @@ void Render::Draw(Color GraphColor, Color GridColor)
                     Potential[i] += t[i];
                 }
 
-                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-
-                solution = solver.Get_Solution(true, Potential);
-                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-
-                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
-                potential.Update(GraphPlot);
+//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+//
+//                solution = solver.Get_Solution(true, Potential);
+//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+//
+//                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
+//                potential.Update(GraphPlot);
+                buttonPressed = true;
             }
-            auto newGraph = SplinePoints(Potential.size(), 10, x, Potential);
-            potential.Update(newGraph);
+//            auto newGraph = SplinePoints(Potential.size(), 10, x, Potential);
+//            potential.Update(newGraph);
         }
         if (currentPotential == InfiniteWell)
         {
@@ -334,14 +344,15 @@ void Render::Draw(Color GraphColor, Color GridColor)
                 {
                     Potential[i] += t[i];
                 }
-
-                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-
-                solution = solver.Get_Solution(true, Potential);
-                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-
-                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-                potential.Update(GraphPlot);
+//
+//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+//
+//                solution = solver.Get_Solution(true, Potential);
+//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+//
+//                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+//                potential.Update(GraphPlot);
+                buttonPressed = true;
             }
         }
 
@@ -361,13 +372,14 @@ void Render::Draw(Color GraphColor, Color GridColor)
                     Potential[i] += t[i];
                 }
 
-                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-
-                solution = solver.Get_Solution(true, Potential);
-                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-
-                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-                potential.Update(GraphPlot);
+//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+//
+//                solution = solver.Get_Solution(true, Potential);
+//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+//
+//                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+//                potential.Update(GraphPlot);
+                buttonPressed = true;
             }
         }
 
@@ -396,14 +408,39 @@ void Render::Draw(Color GraphColor, Color GridColor)
                     Potential[i] += t[i];
                 }
 
-                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-
-                solution = solver.Get_Solution(true, Potential);
-                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-
-                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-                potential.Update(GraphPlot);
+//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
+//
+//                solution = solver.Get_Solution(true, Potential);
+//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
+//
+//                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+//                potential.Update(GraphPlot);
+                buttonPressed = true;
             }
+        }
+
+        if (buttonPressed)
+        {
+
+
+            future = std::async(std::launch::async, &FDM_Solver::Get_Solution, &solver, true, Potential);
+
+
+
+
+            buttonPressed = false;
+        }
+
+        using namespace std::chrono_literals;
+        if (future.valid() && future.wait_for(0s) == std::future_status::ready)
+        {
+            solution = future.get();
+
+            std::vector<double> y(solution[1].second.data(),
+                                  solution[1].second.data() + solution[1].second.size());
+
+            std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+            potential.Update(GraphPlot);
         }
 
         if (ImGui::Button("Reset potential to zero"))

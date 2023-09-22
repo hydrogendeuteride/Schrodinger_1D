@@ -25,11 +25,11 @@ public:
 private:
     GLFWwindow *window;
 
-    void framebuffer_size_callback(int width, int height);
+    static void framebuffer_size_callback(int width, int height);
 
     void scroll_callback(double xoffset, double yoffset);
 
-    void processinput(GLFWwindow *window);
+    void processinput(GLFWwindow *pWwindow);
 
     const int SCR_WIDTH, SCR_HEIGHT;
 
