@@ -20,7 +20,8 @@ set(IMGUI_SRC
         "imgui/imgui_impl_glfw.cpp"
         "imgui/imgui_impl_opengl3.cpp"
         "imgui/imgui_tables.cpp"
-        "imgui/imgui_widgets.cpp")
+        "imgui/imgui_widgets.cpp"
+        include/ImGuiControls.h)
 
 add_executable(Schrodinger_1D
         src/main.cpp

@@ -13,6 +13,8 @@
 #include "Potentials.h"
 #include "Wave_Packet.h"
 
+#include "ImGuiControls.h"
+
 class Render
 {
 public:
@@ -69,8 +71,11 @@ private:
     double k = 1.0;
     double a = 0.5;
     double V0 = 10.0;
-    double wellStart, wellEnd;
-    double wellDepth;
+
+    InfiniteWellData infiniteWellData = {0.0, 0.0};
+    DiracDeltaData diracDeltaData = {0.0};
+    FiniteSquareWellData finiteSquareWellData = {0.0, 0.0, 0.0};
+    HarmonicOscillatorData harmonicOscillatorData = {0.0};
 
     double mu = -3.0, sigma = 0.1, k_freq = 2 * PI;
 };

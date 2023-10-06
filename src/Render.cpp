@@ -4,25 +4,6 @@
 #include <future>
 #include <chrono>
 
-std::string GetPotentialName(PotentialType potential)
-{
-    switch (potential)
-    {
-        case HarmonicOscillator:
-            return "Harmonic Oscillator";
-        case FreeSpace:
-            return "Free Space";
-        case FiniteWell:
-            return "Finite Well";
-        case InfiniteWell:
-            return "Infinite Well";
-        case DiracDelta:
-            return "Dirac Delta";
-        default:
-            return "Harmonic Oscillator";
-    }
-}
-
 Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
 {
     if (!glfwInit())
@@ -296,137 +277,29 @@ void Render::Draw(Color GraphColor, Color GridColor)
             ImGui::EndCombo();
         }
 
-        if (currentPotential == HarmonicOscillator)
-        {
-            float k_temp = static_cast<float>(k);
-            if (ImGui::SliderFloat("K (spring constant)", &k_temp, 0.1, 10.0))
-            {
-                k = static_cast<double>(k_temp);
-            }
-            if (ImGui::Button("Add"))
-            {
-                auto t = Potential::HarmonicOscillatorPotential(Grid_Num, k, x);
-                for (int i = 0; i < Grid_Num; ++i)
-                {
-                    Potential[i] += t[i];
-                }
-
-//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-//
-//                solution = solver.Get_Solution(true, Potential);
-//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-//
-//                std::vector<Eigen::Vector2d> GraphPlot = SplinePoints(Grid_Num, 10, x, y);
-//                potential.Update(GraphPlot);
-                buttonPressed = true;
-            }
-//            auto newGraph = SplinePoints(Potential.size(), 10, x, Potential);
-//            potential.Update(newGraph);
-        }
         if (currentPotential == InfiniteWell)
         {
-            auto start_temp = static_cast<float>(wellStart);
-            auto end_temp = static_cast<float>(wellEnd);
-
-            if (ImGui::SliderFloat("Well Start", &start_temp, -6.0f, 6.0f) ||
-                ImGui::SliderFloat("Well End", &end_temp, -6.0f, 6.0f))
-            {
-                if (wellEnd <= wellStart)
-                    wellEnd = wellStart;
-
-                wellStart = static_cast<double>(start_temp);
-                wellEnd = static_cast<double>(end_temp);
-            }
-            if (ImGui::Button("Add"))
-            {
-                auto t = Potential::InfiniteSquareWell(Grid_Num, wellStart, wellEnd, Range_Min);
-                for (int i = 0; i < Grid_Num; ++i)
-                {
-                    Potential[i] += t[i];
-                }
-//
-//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-//
-//                solution = solver.Get_Solution(true, Potential);
-//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-//
-//                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-//                potential.Update(GraphPlot);
-                buttonPressed = true;
-            }
+            handleInfiniteWellGUI(infiniteWellData, Grid_Num, Range_Min, Potential, buttonPressed);
         }
 
         if (currentPotential == DiracDelta)
         {
-            auto start_temp = static_cast<float>(wellStart);
-
-            if (ImGui::SliderFloat("Start", &start_temp, -6.0f, 6.0f))
-            {
-                wellStart = static_cast<double>(start_temp);
-            }
-            if (ImGui::Button("Add"))
-            {
-                auto t = Potential::DiracDelta(Grid_Num, wellStart, Range_Min);
-                for (int i = 0; i < Grid_Num; ++i)
-                {
-                    Potential[i] += t[i];
-                }
-
-//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-//
-//                solution = solver.Get_Solution(true, Potential);
-//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-//
-//                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-//                potential.Update(GraphPlot);
-                buttonPressed = true;
-            }
+            handleDiracDeltaGUI(diracDeltaData, Grid_Num, Range_Min, Potential, buttonPressed);
         }
 
         if (currentPotential == FiniteWell)
         {
-            auto start_temp = static_cast<float>(wellStart);
-            auto end_temp = static_cast<float>(wellEnd);
-            auto depth_temp = static_cast<float>(wellDepth);
+            handleFiniteWellGUI(finiteSquareWellData, Grid_Num, Range_Min, Potential, buttonPressed);
+        }
 
-            if (ImGui::SliderFloat("Well Start", &start_temp, -6.0f, 6.0f) ||
-                ImGui::SliderFloat("Well End", &end_temp, -6.0f, 6.0f) ||
-                ImGui::SliderFloat("well Depth", &depth_temp, -10.0f, 0.0f))
-            {
-                if (wellEnd <= wellStart)
-                    wellEnd = wellStart;
-
-                wellStart = static_cast<double>(start_temp);
-                wellEnd = static_cast<double>(end_temp);
-                wellDepth = static_cast<double>(depth_temp);
-            }
-            if (ImGui::Button("Add"))
-            {
-                auto t = Potential::FiniteSquareWell(Grid_Num, wellStart, wellEnd, wellDepth, Range_Min);
-                for (int i = 0; i < Grid_Num; ++i)
-                {
-                    Potential[i] += t[i];
-                }
-
-//                FDM_Solver solver(Grid_Num, Range_Min, Range_Max);
-//
-//                solution = solver.Get_Solution(true, Potential);
-//                std::vector<double> y(solution[1].second.data(), solution[1].second.data() + solution[1].second.size());
-//
-//                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-//                potential.Update(GraphPlot);
-                buttonPressed = true;
-            }
+        if (currentPotential == HarmonicOscillator)
+        {
+            handleHarmonicOscillatorGUI(harmonicOscillatorData, Grid_Num, Range_Min, x, Potential, buttonPressed);
         }
 
         if (buttonPressed)
         {
-
-
             future = std::async(std::launch::async, &FDM_Solver::Get_Solution, &solver, true, Potential);
-
-
-
 
             buttonPressed = false;
         }
@@ -439,8 +312,16 @@ void Render::Draw(Color GraphColor, Color GridColor)
             std::vector<double> y(solution[1].second.data(),
                                   solution[1].second.data() + solution[1].second.size());
 
-            std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
-            potential.Update(GraphPlot);
+            if (currentPotential == DiracDelta || currentPotential == InfiniteWell)
+            {
+                std::vector<Eigen::Vector2d> GraphPlot = LinearSpline(2, x, Potential);
+                potential.Update(GraphPlot);
+            }
+            else
+            {
+                std::vector<Eigen::Vector2d> PotentialPlot = SplinePoints(Grid_Num, 10, x, Potential);
+                potential.Update(PotentialPlot);
+            }
         }
 
         if (ImGui::Button("Reset potential to zero"))
@@ -475,4 +356,3 @@ void Render::Draw(Color GraphColor, Color GridColor)
 
     glfwTerminate();
 }
-
