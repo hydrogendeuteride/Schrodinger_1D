@@ -5,6 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "Potentials.h"
+
 namespace
 {
     std::string GetPotentialName(PotentialType potential)
@@ -47,6 +48,16 @@ namespace
     struct HarmonicOscillatorData
     {
         double k;
+    };
+
+    struct WavePacketData
+    {
+        bool wavePacketDraw;
+        double mu;
+        double sigma;
+        double k_freq;
+        bool wavePacketPropagate;
+        double tmp;
     };
 
     void
@@ -136,7 +147,7 @@ namespace
                                 std::vector<double> &Potential,
                                 bool &buttonPressed)
     {
-        float k_temp = static_cast<float>(data.k);
+        auto k_temp = static_cast<float>(data.k);
         if (ImGui::SliderFloat("K (spring constant)", &k_temp, 0.1, 10.0))
         {
             data.k = static_cast<double>(k_temp);
@@ -147,6 +158,46 @@ namespace
                                         Potential::HarmonicOscillatorPotential(Grid_Num, data.k, x),
                                         buttonPressed);
         }
+    }
+
+    void wavePacketSettingsGUI(WavePacketData &data, Wave_Packet &wavePacket, Graph &graph, double Range_Min,
+                               double Range_Max, int Grid_Num)
+    {
+        auto mu_temp = static_cast<float>(data.mu);
+        auto sigma_temp = static_cast<float>(data.sigma);
+        auto k_freq_temp = static_cast<float>(data.k_freq);
+
+        if (ImGui::SliderFloat("mu", &mu_temp, static_cast<float>(Range_Min), static_cast<float>(Range_Max)) ||
+            ImGui::SliderFloat("sigma", &sigma_temp, 0.01f, 2.0f) ||
+            ImGui::SliderFloat("k", &k_freq_temp, static_cast<float>(PI), static_cast<float>(128.0f * PI)))
+        {
+            data.mu = static_cast<double>(mu_temp);
+            data.sigma = static_cast<double>(sigma_temp);
+            data.k_freq = static_cast<double>(k_freq_temp);
+        }
+
+        if (ImGui::Button("Generate Packet"))
+        {
+            wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, data.mu, data.sigma, data.k_freq);
+            //Potential = wavePacket.GetDrawingData(10);
+            graph.Update(wavePacket.GetDrawingData(10));
+            graph.draw(Red);
+        }
+    }
+
+    void wavePacketPropagationGUI(WavePacketData &data, Wave_Packet &wavePacket, Graph &graph,
+                                  const std::vector<double> &Potential)
+    {
+        ImGui::Checkbox("Wave Packet Propagate", &data.wavePacketPropagate);
+        if (data.wavePacketPropagate)
+        {
+            data.tmp += 0.0001;
+            wavePacket.TimePropagate(data.tmp, Potential);
+            graph.Update(wavePacket.GetDrawingData(10));
+            graph.draw(Red);
+        }
+        else
+            graph.draw(Red);
     }
 };
 

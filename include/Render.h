@@ -39,8 +39,6 @@ private:
 
     int selecteditem = 1;
     bool check = 0;
-    bool wavePacketDraw = false;
-    bool wavePacketPropagate = false;
 
     std::vector<double> x;
     std::vector<double> Potential;
@@ -68,16 +66,12 @@ private:
     int Grid_Num;
     double Range_Min, Range_Max;
 
-    double k = 1.0;
-    double a = 0.5;
-    double V0 = 10.0;
-
     InfiniteWellData infiniteWellData = {0.0, 0.0};
     DiracDeltaData diracDeltaData = {0.0};
     FiniteSquareWellData finiteSquareWellData = {0.0, 0.0, 0.0};
     HarmonicOscillatorData harmonicOscillatorData = {0.0};
 
-    double mu = -3.0, sigma = 0.1, k_freq = 2 * PI;
+    WavePacketData wavePacketData = {false, -3.0, 0.1,2 * PI, false, 0.0};
 };
 
 #endif //SCHRODINGER_1D_RENDER_H

@@ -29,7 +29,7 @@ Render::Render(int width, int height) : SCR_WIDTH(width), SCR_HEIGHT(height)
     glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *w, int width, int height) {
         auto *win = static_cast<Render *>(glfwGetWindowUserPointer(w));
-        win->framebuffer_size_callback(width, height);
+        Render::framebuffer_size_callback(width, height);
     });
 
     glfwSetScrollCallback(window, [](GLFWwindow *w, double xoffset, double yoffset) {
@@ -109,7 +109,7 @@ void Render::Setup(int Grid_Num, double Range_Min, double Range_Max, std::vector
 
 
     //packet generation
-    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k_freq);
+    wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, wavePacketData.mu, wavePacketData.sigma, wavePacketData.k_freq);
     auto data = wavePacket.GetDrawingData(10);
     packet.setup(data, std::make_shared<Shader>(shader));
 
@@ -211,39 +211,11 @@ void Render::Draw(Color GraphColor, Color GridColor)
             graph.TimePropagate(0, 0);
         }
 
-        ImGui::Checkbox("Wave Packet Draw", &wavePacketDraw);
-        if (wavePacketDraw)
+        ImGui::Checkbox("Wave Packet Draw", &wavePacketData.wavePacketDraw);
+        if (wavePacketData.wavePacketDraw)
         {
-            auto mu_temp = static_cast<float>(mu);
-            auto sigma_temp = static_cast<float>(sigma);
-            auto k_freq_temp = static_cast<float>(k_freq);
-
-            if (ImGui::SliderFloat("mu", &mu_temp, Range_Min, Range_Max) ||
-                ImGui::SliderFloat("sigma", &sigma_temp, 0.01, 2.0) ||
-                ImGui::SliderFloat("k", &k_freq_temp, PI, 128 * PI))
-            {
-                mu = static_cast<double>(mu_temp);
-                sigma = static_cast<double>(sigma_temp);
-                k_freq = static_cast<double>(k_freq_temp);
-            }
-
-            if (ImGui::Button("Generate Packet"))
-            {
-                wavePacket.PacketGeneration(Grid_Num, Range_Min, Range_Max, mu, sigma, k_freq);
-                packet.Update(wavePacket.GetDrawingData(10));
-                packet.draw(Red);
-            }
-
-            ImGui::Checkbox("Wave Packet Propagate", &wavePacketPropagate);
-            if (wavePacketPropagate)
-            {
-                tmp += 0.0001;
-                wavePacket.TimePropagate(tmp, Potential);
-                packet.Update(wavePacket.GetDrawingData(10));
-                packet.draw(Red);
-            }
-            else
-                packet.draw(Red);
+            wavePacketSettingsGUI(wavePacketData, wavePacket, packet, Range_Min, Range_Max, Grid_Num);
+            wavePacketPropagationGUI(wavePacketData, wavePacket, packet, Potential);
         }
         ImGui::End();
 
